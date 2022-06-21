@@ -12,3 +12,5 @@ library(rstan)
 # library(viridis)
 
 source("./analysis/fit-sr-stan.R")
+
+source("./doc/fraser-pinks.Rmd")
