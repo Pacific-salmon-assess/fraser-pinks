@@ -1,0 +1,53 @@
+---
+title: "Fraser pinks"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output:
+  html_document:
+    collapsed: no
+    fig_caption: yes
+    highlight: espresso
+    number_sections: yes
+    smooth_scroll: yes
+    theme: sandstone
+    toc: yes
+    toc_float: yes
+    keep_md: true
+---
+
+```{=html}
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 13px;
+  }
+td {  /* Table  */
+  font-size: 13px;
+}
+h1.title {
+  font-size: 24px;
+  color: Black;
+}
+h1 { /* Header 1 */
+  font-size: 19px;
+  color: Black;
+}
+h2 { /* Header 2 */
+    font-size: 15px;
+  color: Black;
+}
+</style>
+```
+Preliminary exploration fitting state-space spawner recruitment models to observations of Fraser River pink salmon spawning escapement and harvest. 
+
+```{r setup, include=FALSE}
+# Settings and libraries
+
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, cache=FALSE, include=TRUE)
+knitr::opts_chunk$set(dpi=300)
+
+options(scipen=1, digits=4)
+
+# Read in Model Data and Output Files for each of the three models (base/body count, total eggs and total egg mass versions)
+
+
+```
