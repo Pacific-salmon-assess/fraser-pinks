@@ -1,5 +1,5 @@
 # fraser-pinks
-Analysis of Fraser River pink salmon spawner recruitment observations with state-space model to account for time varying observation error in estimates of spawning escapement and harvest. Ultimate goal of analysis is to derive biological benchmarks to inform a Limit Reference Point for the Stock Management Unit and associated harvest control rule. 
+Fraser River pink salmon spawner recruitment analysis with state-space model to account for time varying observation error in estimates of spawning escapement and harvest. Ultimate goal of analysis is to derive biological benchmarks to inform a Limit Reference Point for the Stock Management Unit and associated harvest control rule. 
 
 ## Folders and files
 - `reproduce.R`: source to load required libraries and reproduce analysis
