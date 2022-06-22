@@ -75,10 +75,8 @@ model{
 
   // Likelihoods
 
-  // First year of recruits, for which there is no spawner link
-  lnR[1] ~ normal(mean_ln_R0, sigma_R0);
-
   // State model
+  lnR[1] ~ normal(mean_ln_R0, sigma_R0);
   lnR[2:nRyrs] ~ normal(lnRm_2[2:nRyrs], sigma_R_corr);
 
   // Observation model
