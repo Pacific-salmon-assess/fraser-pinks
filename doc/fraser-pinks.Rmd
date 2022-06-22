@@ -18,7 +18,7 @@ output:
 <style type="text/css">
 
 body{ /* Normal  */
-      font-size: 13px;
+      font-size: 15px;
   }
 td {  /* Table  */
   font-size: 13px;
@@ -63,7 +63,7 @@ Preliminary exploration of Fraser pink salmon spawner-recruitment relationship a
 # Data and model formualtion
 First, a quick look at the raw escapement and harvest time series.  
 
-```{r escape-harvest plot, caption = "Figure 1"}
+```{r escape-harvest plot, echo=FALSE, fig.align = "center", fig.height = 4, fig.width = 5}
 escape_harvest <- gather(data[,1:3], type, count, harvest:spawn, factor_key=TRUE)
 
 ggplot(escape_harvest, aes(fill=type, y=count/1000000, x=year)) + 
@@ -77,7 +77,7 @@ ggplot(escape_harvest, aes(fill=type, y=count/1000000, x=year)) +
 
 Note spawning escapement has been estimated with various methods over the years which vary in their precision and all o which are likely less precise than estimates of harvest. We would like to account for this time varying observation error when estimating the shape of the spawner-recruitment relationship. To do this we fit a state-space spawner recruitment model to the estimates of spawner abundance and harvest. The model is similar to the one originally described in [Fleischman et al. 2013](https://cdnsciencepub.com/doi/full/10.1139/cjfas-2012-0112) but without age-structure given the fixed two-year pink salmon life cycle. The model assumed a Ricker type spawner-recruitment relationship with serially correlated recruitment residuals and was parameterized with a log-normal bias correction applied directly to the likelihood for the process model. The observation error CVs on escapement specified for the observation model, which are just place holders for now, were: 
 
-```{r}
+```{r spawner estimation methods}
 Years <- c("1957-1985 ", "1987-1991", "1993-2001", "2003-2007", "2009-2011", "2013-2021")
 Method <- c("PSC mark-recapture (system specific)", "DFO mark-recapture (system specific)", "DFO mark-recapture (mainstem)", "Test fishery", "Mission post-season", "Mission in-season")
 CV <- c("20%", "20%", "20%", "50%", "35%", "35%")
@@ -93,7 +93,24 @@ We fit the spawner-recruitment model in the [Stan Bayesian modelling platform](h
 
 # Spawner-recruitment relationship
 
-```{r , include = FALSE}
+Here are posterior distributions for a few key parameters including magnitude of within-stock density dependence (beta), intrinsic productivity (ln alpha), serial correlation in recruitment residuals (phi) and magnitude of recruitment variation (sigma).
+```{r parameter-hist-plot, message = FALSE, warnings = FALSE, fig.align = "center", fig.height = 4, fig.width = 5}
+post_df <- data.frame(
+  parameter = factor(rep(c("lnalpha", "beta", "phi","sigma"), each=dim(model_pars$lnalpha))),
+  posterior = c(model_pars$lnalpha, model_pars$beta, model_pars$phi, model_pars$sigma_R)
+)
+
+ggplot(post_df, aes(x = posterior)) + 
+  geom_density(fill="light grey") +
+  xlab("Posterior value") +
+  ylab("") +
+  facet_wrap(~ parameter, scales="free") +
+  theme_bw()+
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+```
+And this is what the spawner-recruitment relationship looks like. 
+```{r }
 max_samples <- dim(model_pars$lnalpha)
 
 spwn <- exp(model_pars$lnS)
@@ -124,7 +141,7 @@ SR_pred <- as.data.frame(SR_pred)
 
 ```
 
-```{r sr-plot}
+```{r sr-plot, warnings = FALSE, fig.align = "center", fig.height = 4}
 ggplot() +
   geom_ribbon(data = SR_pred, aes(x = Spawn, ymin = Rec_lwr, ymax = Rec_upr),
               fill = "grey80", alpha=0.5, linetype=2, colour="gray46") +
@@ -148,9 +165,8 @@ ggplot() +
 
 ```
 
-based on fitting state-space spawner recruitment models to observations of Fraser River pink salmon spawning escapement and harvest. 
-
-```{r resid-plot}
+And recruitment deviations over time which suggest little evidence for directional change in productivity, though last three brood years have all been below average. 
+```{r resid-plot, warnings = FALSE, fig.align = "center", fig.height = 4}
 resid <- model_pars$lnresid
 resid.quant <- apply(resid, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))[,1:31]
 
@@ -170,22 +186,9 @@ ggplot(resids, aes(x=year, y = mid), show.legend = F) +
 
 ```
 
-```{r parameter-hist-plot}
-post_df <- data.frame(
-  parameter = factor(rep(c("lnalpha", "beta", "phi","sigma"), each=dim(model_pars$lnalpha))),
-  posterior = c(model_pars$lnalpha, model_pars$beta, model_pars$phi, model_pars$sigma_R)
-)
+# Benchmarks and status
 
-ggplot(post_df, aes(x = posterior)) + 
-  geom_density(fill="light grey") +
-  xlab("Posterior value") +
-  ylab("") +
-  facet_wrap(~ parameter, scales="free") +
-  theme_bw()+
-  theme(axis.text.y = element_blank(),
-        axis.ticks.y = element_blank())
-```
-
+Here are estimated benchmarks, along with 25th and 50th percentiles which have been proposed as alternatives to spawner-recruitment benchmarks for data limited stocks ([Holt et al. 2018](https://www.dfo-mpo.gc.ca/csas-sccs/Publications/ResDocs-DocRech/2018/2018_011-eng.html)). Under the Wild Salmon Policy 80% of Smsy is typically used as the upper biological benchmark, but here I am just presenting Smsy. 
 ```{r }
 # Sgen function
 get_Sgen <- function(a, b, int_lower, int_upper, SMSY) {
@@ -225,7 +228,8 @@ kable(data.frame(benchmarks.df), align="crr") %>% #digits=c(1) %>%
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
-```{r exploit-rate-plot}
+This is what reconstructed harvest rate looks like over time relative to Umsy. 
+```{r exploit-rate-plot, warnings = FALSE, fig.align = "center", fig.height = 4}
 er <- model_pars$U
 er.quant <- apply(er, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))
 
@@ -249,7 +253,8 @@ ggplot(er_df, aes(x=year, y = mid), show.legend = F) +
 
 ```
 
-```{r status-plot}
+And here is what reconstructed spawner abundance looks like over time relative to Smsy and Sgen. 
+```{r status-plot, warnings = FALSE, fig.align = "center", fig.height = 4}
 spwn <- model_pars$S
 spwn.quant <- apply(spwn, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))
 
