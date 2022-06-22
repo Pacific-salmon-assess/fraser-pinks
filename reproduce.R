@@ -2,6 +2,7 @@
 
 library(tidyverse)
 library(rstan)
+library(rmarkdown)
 #library(kableExtra)
 #library(ggthemes)
 # library(tidybayes)
@@ -13,4 +14,4 @@ library(rstan)
 
 source("./analysis/fit-sr-stan.R")
 
-source("./doc/fraser-pinks.Rmd")
+render("./doc/fraser-pinks.Rmd")
