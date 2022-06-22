@@ -26,13 +26,13 @@ saveRDS(stan.data, file="./analysis/output/SS-SR_AR1.stan.data.rds")
 # basic diagnostics ----
 model.summary <- data.frame(summary(stan.fit)$summary)
 
-# Ideally effective sample sizes for individual parameters are > 400; values at zero can be ignored as these are unsampled parameters.
-hist(model.summary$n_eff, 
+# Ideally effective sample sizes for individual parameters are > 0.1 (i.e., 10%); values at zero can be ignored as these are unsampled parameters.
+hist(model.summary$n_eff/1000, 
      col="red", 
      breaks=50, 
      main="",
      yaxt="n",
-     xlab="Effective sample size")
+     xlab="Effective sample size/iterations")
 axis(2,las=2)
 box(col="grey")
 
