@@ -9,8 +9,8 @@ stan.data <- list("nyrs" = length(data$year),
                   "S_cv" = data$spawn_cv,
                   "H_cv" = data$harvest_cv)
 
-stan.fit <- stan(file = "./analysis/ss-sr-ar1.stan",
-                 model_name = "SS-SR_AR1",
+stan.fit <- stan(file = "./analysis/ss-sr-ar1-alt-param.stan",
+                 model_name = "SS-SR_AR1_alt_param",
                  data = stan.data,
                  chains = 4,
                  iter = 500,
@@ -20,8 +20,8 @@ stan.fit <- stan(file = "./analysis/ss-sr-ar1.stan",
 
 #shinystan::launch_shinystan(stan.fit) 
 
-saveRDS(stan.fit, file="./analysis/output/SS-SR_AR1.stan.fit.rds")
-saveRDS(stan.data, file="./analysis/output/SS-SR_AR1.stan.data.rds")
+saveRDS(stan.fit, file="./analysis/output/SS-SR_AR1_alt_param.stan.fit.rds")
+saveRDS(stan.data, file="./analysis/output/SS-SR_AR1_alt_param.stan.data.rds")
 
 # basic diagnostics ----
 model.summary <- data.frame(summary(stan.fit)$summary)
@@ -46,5 +46,5 @@ hist(model.summary$Rhat,
 axis(2,las=2)
 box(col="grey")
 
-# how do correlations in lnalpha and beta posteriors look? 
-pairs(stan.fit, pars = c("lnalpha", "beta", "sigma_R", "phi"))
+# how do correlations in Umsy and lnSmsy posteriors look? 
+pairs(stan.fit, pars = c("Umsy", "lnSmsy", "sigma_R", "phi"))
