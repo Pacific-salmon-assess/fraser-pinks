@@ -59,10 +59,22 @@ stan.data <- readRDS("../analysis/output/SS-SR_AR1.stan.data.rds")
 model_pars <- rstan::extract(stan.fit)
 
 ```
+# Summary
+* bulleted list
+
+
 # Background
+
+## Introduction and Context *(biology, environmental conditions & fishery)*
+
+
+## Description of Stock Status and Trends
+
 This doc summarizes preliminary exploratory analysis of Fraser pink salmon spawner-recruitment relationship and associated biological benchmarks. Repository with all data and code to reproduce the analysis, and this doc, can be found [here](https://github.com/Pacific-salmon-assess/fraser-pinks) .  
 
-# Data and model formualtion
+# Analysis
+
+## Data and model formulation
 First, a quick look at the raw escapement and harvest time series.  
 
 ```{r escape-harvest plot, echo=FALSE, fig.align = "center", out.width = "75%"}
@@ -95,7 +107,7 @@ And I assumed a 5% CV on harvest for all year (again as a placeholder).
 
 I fit the spawner-recruitment model in the [Stan Bayesian modelling platform](https://mc-stan.org/), using the [rstan](https://mc-stan.org/rstan/index.html) package. More details on model structure, priors, diagnostics, etc. can be found in the `analysis` sub-folder of [the repository](https://github.com/Pacific-salmon-assess/fraser-pinks) 
 
-# Spawner-recruitment relationship
+## Spawner-recruitment relationship
 
 Here are posterior distributions for a few key parameters including magnitude of within-stock density dependence (beta), intrinsic productivity (ln alpha), serial correlation in recruitment residuals (phi) and magnitude of recruitment variation (sigma).
 ```{r parameter-hist-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "75%"}
@@ -190,7 +202,7 @@ ggplot(resids, aes(x=year, y = mid), show.legend = F) +
 
 ```
 
-# Benchmarks and status
+## Benchmarks and status
 
 Here are estimated benchmarks (all values are in units of millions of fish except U~MSY~). Under the Wild Salmon Policy 80% of S~MSY~ is typically used as the upper biological benchmark, and S~GEN~ as the lower biological benchmark ([Holt and Bradford. 2011](https://www.tandfonline.com/doi/abs/10.1080/02755947.2011.578525)). Also shown are the 25th and 50th percentiles which have been proposed as alternative lower and upper benchmarks for data limited stocks ([Holt et al. 2018](https://www.dfo-mpo.gc.ca/csas-sccs/Publications/ResDocs-DocRech/2018/2018_011-eng.html)). 
 ```{r }
@@ -283,7 +295,7 @@ ggplot(spwn_df, aes(x=year, y = mid), show.legend = F) +
 
 ```
 
-# Profiles
+## Profiles
 
 We can also visualize expected yield and recruitment as a function of spawning escapement via "optimal" yield, recruitment and overfishign profiles. In panel (a) the optimal yield profile illustrates the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable yield (MSY). In panel (b) the optimal recruitment profile illustrates the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable recruitment (S~MSR~). In panel (c) the overfishing profile illustrates the probability that sustained yield (SY) is reduced to less than a percentage (70%, 80%, or 90%) of MSY given a fixed level of escapement and is calculated as 1 – P(SY > X% of MSY) at S < S~MSY~ , and 0 at S > S~MSY~ Historic spawning escapements are shown along x-axis.
 
@@ -383,6 +395,15 @@ g <- ggarrange(a,b,c,nrow =3, labels = c("a", "b", "c"), heights = c(0.75,0.75,0
 print(g)
 ```
 
+# Sources of Uncertainty
+
+# Conclusions (and Advice)
+
+# Other Considerations
+
+# Sources of Information 
+
+# Appendix/Appendices
 # Next steps
 
 Initial thoughts on some next steps include:
