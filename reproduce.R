@@ -2,6 +2,7 @@
 # uncomment the alt-param versions for model with Umsy and lnSmsy as leading parameters instead of lnalpha and beta
 
 library(tidyverse)
+library(ggpubr)
 library(rstan)
 library(rmarkdown)
 
