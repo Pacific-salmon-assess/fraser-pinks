@@ -208,9 +208,9 @@ for(i in 1:1000){
   r <- sample(seq(1,1000),1,replace=T)
   a <- model_pars$lnalpha[r]
   b <- model_pars$beta[r]
-  bench[i,2] <- (1 − lambert_W0(exp(1 - a))) / b # smsy
+  bench[i,2] <- (1 - lambert_W0(exp(1 - a))) / b # smsy
   bench[i,1] <- get_Sgen(exp(a),b,-1,1/b*2,bench[i,2]) # sgen
-  bench[i,3] <- (1 − lambert_W0(exp(1 - a)))# umsy
+  bench[i,3] <- (1 - lambert_W0(exp(1 - a)))# umsy
 }
   
 bench[,2] <- bench[,2]*0.8
@@ -298,7 +298,7 @@ for(i in 1:max_samples){
   R_pred[which(!is.finite(R_pred))] <- 0
   pred_spwn <- spw
   yield <- R_pred-pred_spwn
-  S_msy_c <- (1 − lambert_W0(exp(1 - a))) / b
+  S_msy_c <- (1 - lambert_W0(exp(1 - a))) / b
   msr_c <- max(R_pred)
   S_msr_c <- pred_spwn[which.max(R_pred)]
   msy_c <- max(yield)
