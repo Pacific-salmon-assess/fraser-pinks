@@ -93,7 +93,7 @@ kable(data.frame(df), align="crr") %>% #digits=c(1) %>%
 ```
 And I assumed a 5% CV on harvest for all year (again as a placeholder).
 
-I fit the spawner-recruitment model in the [Stan Bayesian modelling platform](https://mc-stan.org/), using the [rstan](https://mc-stan.org/rstan/index.html) package. More details on model structure, priors, diagnostics, etc. can be found in the `analysis` sub-folder of [the repository](https://github.com/Pacific-salmon-assess/fraser-pinks) 
+I fit the spawner-recruitment model in the [Stan Bayesian modelling platform](https://mc-stan.org/), using the [rstan](https://mc-stan.org/rstan/index.html) package. More details on model structure, priors, diagnostics, etc. can be found in the `analysis` sub-folder of [the repository](https://github.com/Pacific-salmon-assess/fraser-pinks). 
 
 # Spawner-recruitment relationship
 
@@ -109,7 +109,7 @@ ggplot(post_df, aes(x = posterior)) +
   xlab("Posterior value") +
   ylab("") +
   facet_wrap(~ parameter, scales="free") +
-  theme_bw()+
+  theme_bw() +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank())
 ```
@@ -177,15 +177,15 @@ resid.quant <- apply(resid, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))[,1:
 resids <- as.data.frame(cbind(data$year[1:31], t(resid.quant)))
 colnames(resids) <- c("year","lwr","midlwr","mid","midupper","upper")
 
-ggplot(resids, aes(x=year, y = mid), show.legend = F) +
-  geom_line(show.legend = F, color = rgb(1,0,0, alpha=0.2), lwd = 1.5) + 
-  geom_ribbon(aes(ymin = lwr, ymax = upper), show.legend = F, fill = rgb(1,0,0, alpha=0.2)) +
-  geom_ribbon(aes(ymin = midlwr, ymax = midupper), show.legend = F, fill = rgb(1,0,0, alpha=0.2)) +
+ggplot(resids, aes(x=year, y = mid), show.legend = FALSE) +
+  geom_line(show.legend = FALSE, color = rgb(1,0,0, alpha=0.2), lwd = 1.5) + 
+  geom_ribbon(aes(ymin = lwr, ymax = upper), show.legend = FALSE, fill = rgb(1,0,0, alpha=0.2)) +
+  geom_ribbon(aes(ymin = midlwr, ymax = midupper), show.legend = FALSE, fill = rgb(1,0,0, alpha=0.2)) +
   coord_cartesian(ylim=c(-2,2)) +
   xlab("Brood year") +
   ylab("Recruitment residuals") +
   theme(legend.position = "none") +
-  geom_abline(intercept = 0, slope = 0,col="dark grey", lty=2)+
+  geom_abline(intercept = 0, slope = 0, col = "dark grey", lty = 2) +
   theme_bw()
 
 ```
@@ -196,7 +196,7 @@ Here are estimated benchmarks (all values are in units of millions of fish excep
 ```{r }
 # Sgen function
 get_Sgen <- function(a, b, int_lower, int_upper, SMSY) {
-  fun_Sgen <- function(Sgen, a, b, SMSY) {Sgen * a * exp( - b*Sgen) - SMSY}
+  fun_Sgen <- function(Sgen, a, b, SMSY) {Sgen * a * exp(-b * Sgen) - SMSY}
   Sgen <- uniroot(fun_Sgen, interval=c(int_lower, int_upper), a=a, b=b, SMSY=SMSY)$root
 }
 
@@ -383,6 +383,27 @@ g <- ggarrange(a,b,c,nrow =3, labels = c("a", "b", "c"), heights = c(0.75,0.75,0
 print(g)
 ```
 
+# Kobe  
+
+Now we'll visualize $U_{MSY}$ and 80% $S_{MSY}$ in a Kobe plot. The different quadrants represent different scenarios, where the upper left shows harvest above $U_{MSY}$ while the stock is below 80% $S_{MSY}$, which is a dangerous place for a stock to be. The bottom right shows years where the stock is above 80% $S_{MSY}$ and harvest is below $U_{MSY}$ which could allow the stock to be harvested more. The other quadrants represent moderately risky stats for the stock to be in.     
+
+```{r kobe-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "80%"}
+kobe_df <- data.frame(S = spwn_df$mid, 
+                      U = er_df$mid, 
+                      year = spwn_df$year) |>
+  mutate(U_Umsy = U/benchmarks[3,1], 
+         S_Smsy_80 = S/benchmarks[1,1])
+
+ggplot(kobe_df, aes(S_Smsy_80, U_Umsy)) +
+  geom_vline(xintercept = 1, lty = 2) +
+  geom_hline(yintercept = 1, lty = 2) +
+  geom_path() +
+  geom_point(aes(color=year), size=3) +
+  scale_colour_viridis_c()+
+  theme_classic() +
+  labs(y="U/Umsy", x= "S/Smsy_80")
+```
+
 # Next steps
 
 Initial thoughts on some next steps include:
@@ -390,4 +411,4 @@ Initial thoughts on some next steps include:
 - come up with a way to specify defensible observation error CVs on spawner time-series (e.g., from mark-recapture estimates) over time.
 - identify alternative scenarios to consider for sensitivity analysis (e.g., assume some magnitude of bias for some years of escapement estimates to quantify sensitivity to violation of assumption that escapement estimates are un-biased?)
 - track-down published length-fecundity relationship(s) for pinks and any data on sex-ratios to develop a total egg (or egg mass) based spawner-recruitment relationship that would allow for explicit consideration of consequences of declining pink salmon size for benchmarks.  
-- Do some simple forward projections of existing (and alternative) harvest control rule with plausible magnitude of implementation error and sumarize performance relative to fishery and conservation objectives.   
+- Do some simple forward projections of existing (and alternative) harvest control rule with plausible magnitude of implementation error and summarize performance relative to fishery and conservation objectives.   

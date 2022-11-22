@@ -1,6 +1,6 @@
 ---
 title: "Fraser pinks"
-date: '07 November, 2022'
+date: '22 November, 2022'
 output:
   html_document:
     collapsed: no
@@ -94,7 +94,7 @@ The model assumed a Ricker type spawner-recruitment relationship with serially c
 </table>
 And I assumed a 5% CV on harvest for all year (again as a placeholder).
 
-I fit the spawner-recruitment model in the [Stan Bayesian modelling platform](https://mc-stan.org/), using the [rstan](https://mc-stan.org/rstan/index.html) package. More details on model structure, priors, diagnostics, etc. can be found in the `analysis` sub-folder of [the repository](https://github.com/Pacific-salmon-assess/fraser-pinks) 
+I fit the spawner-recruitment model in the [Stan Bayesian modelling platform](https://mc-stan.org/), using the [rstan](https://mc-stan.org/rstan/index.html) package. More details on model structure, priors, diagnostics, etc. can be found in the `analysis` sub-folder of [the repository](https://github.com/Pacific-salmon-assess/fraser-pinks). 
 
 # Spawner-recruitment relationship
 
@@ -123,21 +123,21 @@ Here are estimated benchmarks (all values are in units of millions of fish excep
 <tbody>
   <tr>
    <td style="text-align:left;"> 80% Smsy </td>
-   <td style="text-align:center;"> 4.0688 </td>
-   <td style="text-align:right;"> 3.0068 </td>
-   <td style="text-align:right;"> 6.0402 </td>
+   <td style="text-align:center;"> 4.1197 </td>
+   <td style="text-align:right;"> 3.0362 </td>
+   <td style="text-align:right;"> 6.1982 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Sgen </td>
-   <td style="text-align:center;"> 1.3279 </td>
-   <td style="text-align:right;"> 0.6908 </td>
-   <td style="text-align:right;"> 2.6846 </td>
+   <td style="text-align:center;"> 1.3592 </td>
+   <td style="text-align:right;"> 0.7133 </td>
+   <td style="text-align:right;"> 2.8656 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Umsy </td>
-   <td style="text-align:center;"> 0.5947 </td>
-   <td style="text-align:right;"> 0.4659 </td>
-   <td style="text-align:right;"> 0.7013 </td>
+   <td style="text-align:center;"> 0.5902 </td>
+   <td style="text-align:right;"> 0.4611 </td>
+   <td style="text-align:right;"> 0.6949 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 25th percentile </td>
@@ -166,6 +166,12 @@ We can also visualize expected yield and recruitment as a function of spawning e
 
 <img src="fraser-pinks_files/figure-html/profile-plot-1.png" width="85%" style="display: block; margin: auto;" />
 
+# Kobe  
+
+Now we'll visualize $U_{MSY}$ and 80% $S_{MSY}$ in a Kobe plot. The different quadrants represent different scenarios, where the upper left shows harvest above $U_{MSY}$ while the stock is below 80% $S_{MSY}$, which is a dangerous place for a stock to be. The bottom right shows years where the stock is above 80% $S_{MSY}$ and harvest is below $U_{MSY}$ which could allow the stock to be harvested more. The other quadrants represent moderately risky stats for the stock to be in.     
+
+<img src="fraser-pinks_files/figure-html/kobe-plot-1.png" width="80%" style="display: block; margin: auto;" />
+
 # Next steps
 
 Initial thoughts on some next steps include:
@@ -173,4 +179,4 @@ Initial thoughts on some next steps include:
 - come up with a way to specify defensible observation error CVs on spawner time-series (e.g., from mark-recapture estimates) over time.
 - identify alternative scenarios to consider for sensitivity analysis (e.g., assume some magnitude of bias for some years of escapement estimates to quantify sensitivity to violation of assumption that escapement estimates are un-biased?)
 - track-down published length-fecundity relationship(s) for pinks and any data on sex-ratios to develop a total egg (or egg mass) based spawner-recruitment relationship that would allow for explicit consideration of consequences of declining pink salmon size for benchmarks.  
-- Do some simple forward projections of existing (and alternative) harvest control rule with plausible magnitude of implementation error and sumarize performance relative to fishery and conservation objectives.   
+- Do some simple forward projections of existing (and alternative) harvest control rule with plausible magnitude of implementation error and summarize performance relative to fishery and conservation objectives.   
