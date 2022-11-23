@@ -11,7 +11,6 @@ output:
     theme: sandstone
     toc: yes
     toc_float: yes
-    keep_md: true
 ---
 
 ```{=html}
@@ -192,7 +191,7 @@ ggplot(resids, aes(x=year, y = mid), show.legend = FALSE) +
 
 # Benchmarks and status
 
-Here are estimated benchmarks (all values are in units of millions of fish except U~MSY~). Under the Wild Salmon Policy 80% of S~MSY~ is typically used as the upper biological benchmark, and S~GEN~ as the lower biological benchmark ([Holt and Bradford. 2011](https://www.tandfonline.com/doi/abs/10.1080/02755947.2011.578525)). Also shown are the 25th and 50th percentiles which have been proposed as alternative lower and upper benchmarks for data limited stocks ([Holt et al. 2018](https://www.dfo-mpo.gc.ca/csas-sccs/Publications/ResDocs-DocRech/2018/2018_011-eng.html)). 
+Here are estimated benchmarks (all values are in units of millions of fish except $U_{MSY}$). Under the Wild Salmon Policy 80% of $S_{MSY}$ is typically used as the upper biological benchmark, and $S_{GEN}$ as the lower biological benchmark ([Holt and Bradford. 2011](https://www.tandfonline.com/doi/abs/10.1080/02755947.2011.578525)). Also shown are the 25^{th} and 50^{th} percentiles which have been proposed as alternative lower and upper benchmarks for data limited stocks ([Holt et al. 2018](https://www.dfo-mpo.gc.ca/csas-sccs/Publications/ResDocs-DocRech/2018/2018_011-eng.html)). 
 ```{r }
 # Sgen function
 get_Sgen <- function(a, b, int_lower, int_upper, SMSY) {
@@ -233,7 +232,7 @@ kable(data.frame(benchmarks.df), align="crr") %>% #digits=c(1) %>%
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
-This is what reconstructed harvest rate looks like over time relative to U~MSY~.  
+This is what reconstructed harvest rate looks like over time relative to $U_{MSY}$.  
 ```{r exploit-rate-plot,message = FALSE, warning = FALSE, fig.align = "center", out.width = "75%"}
 er <- model_pars$U
 er.quant <- apply(er, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))
@@ -258,7 +257,7 @@ ggplot(er_df, aes(x=year, y = mid), show.legend = F) +
 
 ```
 
-And here is what reconstructed spawner abundance looks like over time relative to upper (80% S~MSY~) and lower (S~GEN~) biological benchmarks. 
+And here is what reconstructed spawner abundance looks like over time relative to upper (80% $S_{MSY}$) and lower ($S_{GEN}$) biological benchmarks. 
 ```{r status-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "75%"}
 spwn <- model_pars$S
 spwn.quant <- apply(spwn, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))
@@ -285,7 +284,7 @@ ggplot(spwn_df, aes(x=year, y = mid), show.legend = F) +
 
 # Profiles
 
-We can also visualize expected yield and recruitment as a function of spawning escapement via "optimal" yield, recruitment and overfishign profiles. In panel (a) the optimal yield profile illustrates the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable yield (MSY). In panel (b) the optimal recruitment profile illustrates the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable recruitment (S~MSR~). In panel (c) the overfishing profile illustrates the probability that sustained yield (SY) is reduced to less than a percentage (70%, 80%, or 90%) of MSY given a fixed level of escapement and is calculated as 1 – P(SY > X% of MSY) at S < S~MSY~ , and 0 at S > S~MSY~ Historic spawning escapements are shown along x-axis.
+We can also visualize expected yield and recruitment as a function of spawning escapement via "optimal" yield, recruitment and overfishing profiles. In panel (a) the optimal yield profile illustrates the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable yield ($S_{MSY}$). In panel (b) the optimal recruitment profile illustrates the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable recruitment ($S_{MSR}$). In panel (c) the overfishing profile illustrates the probability that sustained yield ($SY$) is reduced to less than a percentage (70%, 80%, or 90%) of $MSY$ given a fixed level of escapement and is calculated as 1 – P($SY$ > X% of $MSY$) at $S$ < $S_{MSY}$ , and 0 at $S$ > $S_{MSY}$. Historic spawning escapements are shown along x-axis.
 
 ```{r profile-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "85%"}
 spw <- seq(0,max(brood_t[,4]),length.out=100)
@@ -399,7 +398,7 @@ ggplot(kobe_df, aes(S_Smsy_80, U_Umsy)) +
   geom_hline(yintercept = 1, lty = 2) +
   geom_path() +
   geom_point(aes(color=year), size=3) +
-  scale_colour_viridis_c()+
+  scale_colour_viridis_c() +
   theme_classic() +
   labs(y="U/Umsy", x= "S/Smsy_80")
 ```
