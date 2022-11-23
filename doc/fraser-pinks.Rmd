@@ -383,7 +383,7 @@ print(g)
 
 # Kobe  
 
-Now we'll visualize $U_{MSY}$ and $S_{MSY}$ in a Kobe plot. The different quadrants represent different scenarios, where the upper left shows harvest above $U_{MSY}$ while the stock is below $S_{MSY}$, which is a dangerous place for a stock to be. The bottom right shows years where the stock is above 80% $S_{MSY}$ and harvest is below $U_{MSY}$ which could allow the stock to be harvested more. The other quadrants represent moderately risky stats for the stock to be in. The dotted vertical line shows 80% $S_{MSY}$ (the wild salmon policy benchmark).       
+Now we'll visualize $U_{MSY}$ and $S_{MSY}$ in a Kobe plot. The different quadrants represent different scenarios, where the upper left shows harvest above $U_{MSY}$ while the stock is below $S_{MSY}$, which is a dangerous place for a stock to be. The bottom right shows years where the stock is above $S_{MSY}$ and harvest is below $U_{MSY}$ which could allow the stock to be harvested more. The other quadrants represent moderately risky stats for the stock to be in. The dotted vertical line shows 80% $S_{MSY}$ (the wild salmon policy benchmark).       
 
 ```{r kobe-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "80%"}
 kobe_df <- data.frame(S = spwn_df$mid, 
