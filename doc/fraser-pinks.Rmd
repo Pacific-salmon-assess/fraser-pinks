@@ -141,7 +141,6 @@ for(i in 1:max_samples){
 SR_pred <- cbind(spw,t(apply(SR_pred,c(1),quantile,probs=c(0.05,0.5,0.95),na.rm=T)))
 colnames(SR_pred) <- c("Spawn", "Rec_lwr","Rec_med","Rec_upr")
 SR_pred <- as.data.frame(SR_pred)
-
 ```
 
 ```{r sr-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "80%"}
@@ -191,7 +190,7 @@ ggplot(resids, aes(x=year, y = mid), show.legend = FALSE) +
 
 # Benchmarks and status
 
-Here are estimated benchmarks (all values are in units of millions of fish except $U_{MSY}$). Under the Wild Salmon Policy 80% of $S_{MSY}$ is typically used as the upper biological benchmark, and $S_{GEN}$ as the lower biological benchmark ([Holt and Bradford. 2011](https://www.tandfonline.com/doi/abs/10.1080/02755947.2011.578525)). Also shown are the 25^{th} and 50^{th} percentiles which have been proposed as alternative lower and upper benchmarks for data limited stocks ([Holt et al. 2018](https://www.dfo-mpo.gc.ca/csas-sccs/Publications/ResDocs-DocRech/2018/2018_011-eng.html)). 
+Here are estimated benchmarks (all values are in units of millions of fish except $U_{MSY}$). Under the Wild Salmon Policy 80% of $S_{MSY}$ is typically used as the upper biological benchmark, and $S_{GEN}$ as the lower biological benchmark ([Holt and Bradford. 2011](https://www.tandfonline.com/doi/abs/10.1080/02755947.2011.578525)). Also shown are the 25^th^ and 50^th^ percentiles which have been proposed as alternative lower and upper benchmarks for data limited stocks ([Holt et al. 2018](https://www.dfo-mpo.gc.ca/csas-sccs/Publications/ResDocs-DocRech/2018/2018_011-eng.html)). 
 ```{r }
 # Sgen function
 get_Sgen <- function(a, b, int_lower, int_upper, SMSY) {
@@ -384,23 +383,24 @@ print(g)
 
 # Kobe  
 
-Now we'll visualize $U_{MSY}$ and 80% $S_{MSY}$ in a Kobe plot. The different quadrants represent different scenarios, where the upper left shows harvest above $U_{MSY}$ while the stock is below 80% $S_{MSY}$, which is a dangerous place for a stock to be. The bottom right shows years where the stock is above 80% $S_{MSY}$ and harvest is below $U_{MSY}$ which could allow the stock to be harvested more. The other quadrants represent moderately risky stats for the stock to be in.     
+Now we'll visualize $U_{MSY}$ and $S_{MSY}$ in a Kobe plot. The different quadrants represent different scenarios, where the upper left shows harvest above $U_{MSY}$ while the stock is below $S_{MSY}$, which is a dangerous place for a stock to be. The bottom right shows years where the stock is above 80% $S_{MSY}$ and harvest is below $U_{MSY}$ which could allow the stock to be harvested more. The other quadrants represent moderately risky stats for the stock to be in. The dotted vertical line shows 80% $S_{MSY}$ (the wild salmon policy benchmark).       
 
 ```{r kobe-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "80%"}
 kobe_df <- data.frame(S = spwn_df$mid, 
                       U = er_df$mid, 
                       year = spwn_df$year) |>
   mutate(U_Umsy = U/benchmarks[3,1], 
-         S_Smsy_80 = S/benchmarks[1,1])
+         S_Smsy = S/(benchmarks[1,1]*1.25)) #correct from 80%Smsy to Smsy
 
-ggplot(kobe_df, aes(S_Smsy_80, U_Umsy)) +
+ggplot(kobe_df, aes(S_Smsy, U_Umsy)) +
   geom_vline(xintercept = 1, lty = 2) +
+  geom_vline(xintercept = 0.8, lty = 3) +
   geom_hline(yintercept = 1, lty = 2) +
   geom_path() +
   geom_point(aes(color=year), size=3) +
   scale_colour_viridis_c() +
   theme_classic() +
-  labs(y="U/Umsy", x= "S/Smsy_80")
+  labs(y="U/Umsy", x= "S/Smsy")
 ```
 
 # Next steps
