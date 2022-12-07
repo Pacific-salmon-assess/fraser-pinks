@@ -48,6 +48,7 @@ library(kableExtra)
 library(gsl)
 library(ggpubr)
 library(viridis)
+library(plotly)
 
 options(scipen=1, digits=4)
 
@@ -64,15 +65,15 @@ This doc summarizes preliminary exploratory analysis of Fraser pink salmon spawn
 # Data and model formualtion
 First, a quick look at the raw escapement and harvest time series.  
 
-```{r escape-harvest plot, echo=FALSE, fig.align = "center", out.width = "75%"}
+```{r escape-harvest plot, echo=FALSE, fig.align = "center", out.height='80%', out.width = '80%'}
 escape_harvest <- gather(data[,1:3], type, count, harvest:spawn, factor_key=TRUE)
 
-ggplot(escape_harvest, aes(fill=type, y=count/1000000, x=year)) + 
+plotly::ggplotly(ggplot(escape_harvest, aes(fill=type, y=count/1000000, x=year)) + 
     geom_bar(position="stack", stat="identity") +
     scale_fill_brewer(palette="Dark2",name = "") +
     xlab("Year") +
     ylab("Millions of fish") +
-    theme_bw()
+    theme_bw())
 
 ```
 
@@ -385,14 +386,14 @@ print(g)
 
 Now we'll visualize $U_{MSY}$ and $S_{MSY}$ in a Kobe plot. The different quadrants represent different scenarios, where the upper left shows harvest above $U_{MSY}$ while the stock is below $S_{MSY}$, which is a dangerous place for a stock to be. The bottom right shows years where the stock is above $S_{MSY}$ and harvest is below $U_{MSY}$ which could allow the stock to be harvested more. The other quadrants represent moderately risky states for the stock to be in. The dotted vertical line shows 80% $S_{MSY}$ (the wild salmon policy benchmark).       
 
-```{r kobe-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "80%"}
+```{r kobe-plot, message = FALSE, warning = FALSE, fig.align = "center", out.height='80%', out.width = '80%'}
 kobe_df <- data.frame(S = spwn_df$mid, 
                       U = er_df$mid, 
                       year = spwn_df$year) |>
   mutate(U_Umsy = U/benchmarks[3,1], 
          S_Smsy = S/(benchmarks[1,1]*1.25)) #correct from 80%Smsy to Smsy
 
-ggplot(kobe_df, aes(S_Smsy, U_Umsy)) +
+plotly::ggplotly(ggplot(kobe_df, aes(S_Smsy, U_Umsy)) +
   geom_vline(xintercept = 1, lty = 2) +
   geom_vline(xintercept = 0.8, lty = 3) +
   geom_hline(yintercept = 1, lty = 2) +
@@ -400,7 +401,7 @@ ggplot(kobe_df, aes(S_Smsy, U_Umsy)) +
   geom_point(aes(color=year), size=3) +
   scale_colour_viridis_c(name="Year") +
   theme_classic() +
-  labs(y="U/Umsy", x= "S/Smsy")
+  labs(y="U/Umsy", x= "S/Smsy"))
 ```
 
 # Next steps
