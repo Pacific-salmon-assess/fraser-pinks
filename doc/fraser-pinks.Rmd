@@ -67,6 +67,9 @@ model_pars <- rstan::extract(stan.fit)
 
 ## Introduction and Context *(biology, environmental conditions & fishery)*
 
+Fraser Pink Salmon return to the Fraser River in odd-numbered years as two year old fish. They are currently classified as a single conservation unit (CU) for Wild Salmon Policy and one stock management unit for implementation of Fish Stock Provisions.
+
+The same abundance-based harvest control rule has been in place for Fraser Pinks since the mid-1980s.Fisheries on Fraser Pinks are managed in-season by the Fraser Panel process of the Pacific Salmon Treaty.
 
 ## Description of Stock Status and Trends
 
