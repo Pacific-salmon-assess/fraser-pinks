@@ -20,6 +20,11 @@ stan.fit <- stan(file = "./analysis/ss-sr-ar1.stan",
 
 #shinystan::launch_shinystan(stan.fit) 
 
+if(file.exists("./analysis/output")){
+} else{
+  dir.create("./analysis/output")
+}
+
 saveRDS(stan.fit, file="./analysis/output/SS-SR_AR1.stan.fit.rds")
 saveRDS(stan.data, file="./analysis/output/SS-SR_AR1.stan.data.rds")
 

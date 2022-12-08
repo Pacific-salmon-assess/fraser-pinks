@@ -1,5 +1,5 @@
 ---
-title: "Fraser pinks"
+title: "Fraser Pinks"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output:
   html_document:
@@ -11,7 +11,6 @@ output:
     theme: sandstone
     toc: yes
     toc_float: yes
-    keep_md: true
 ---
 
 ```{=html}
@@ -40,15 +39,19 @@ h2 { /* Header 2 */
 
 ```{r setup, include=FALSE}
 # Settings and libraries
-knitr::opts_chunk$set(echo = FALSE, message=FALSE, cache=FALSE, include=TRUE)
-knitr::opts_chunk$set(dpi=300)
-
+knitr::opts_chunk$set(echo = FALSE, 
+                      message = FALSE, 
+                      cache = FALSE, 
+                      include = TRUE,
+                      dpi=300,
+                      fig.align = "center")
 library(rstan)
 library(tidyverse)
 library(kableExtra)
 library(gsl)
 library(ggpubr)
 library(viridis)
+library(plotly)
 
 options(scipen=1, digits=4)
 
@@ -57,7 +60,6 @@ data <- read.csv("../data/fr_pk_spw_har.csv")
 stan.fit <- readRDS("../analysis/output/SS-SR_AR1.stan.fit.rds")
 stan.data <- readRDS("../analysis/output/SS-SR_AR1.stan.data.rds")
 model_pars <- rstan::extract(stan.fit)
-
 ```
 # Summary
 * bulleted list
@@ -80,16 +82,20 @@ This doc summarizes preliminary exploratory analysis of Fraser pink salmon spawn
 ## Data and model formulation
 First, a quick look at the raw escapement and harvest time series.  
 
-```{r escape-harvest plot, echo=FALSE, fig.align = "center", out.width = "75%"}
-escape_harvest <- gather(data[,1:3], type, count, harvest:spawn, factor_key=TRUE)
+```{r escape-harvest-plot, out.height='80%', out.width = '80%'}
+escape_harvest <- gather(data[,1:3], type, count, harvest:spawn, factor_key=TRUE) |>
+  mutate(count_million = round(count/1000000, 2))
 
-ggplot(escape_harvest, aes(fill=type, y=count/1000000, x=year)) + 
+p <- ggplot(escape_harvest, aes(fill=type, y=count_million, x=year)) + 
     geom_bar(position="stack", stat="identity") +
-    scale_fill_brewer(palette="Dark2",name = "") +
+    scale_fill_brewer(palette="Dark2",name = "Return type") +
     xlab("Year") +
-    ylab("Millions of fish") +
+    ylab("Total return (millions of fish)") +
     theme_bw()
 
+plotly::ggplotly(p) |>
+  config(displayModeBar = FALSE) |>
+  layout(hovermode = "x unified") #displays all x info (i.e. stacked)
 ```
 
 Note spawning escapement has been estimated with various methods over the years which vary in their precision, and which are likely less precise than estimates of harvest. We would like to account for this time varying observation error when estimating the shape of the spawner-recruitment relationship. To do this I fit a state-space spawner recruitment model to the estimates of spawner abundance and harvest. The model is similar to the one originally described in [Fleischman et al. 2013](https://cdnsciencepub.com/doi/full/10.1139/cjfas-2012-0112) but without age-structure given the fixed two-year pink salmon life cycle. 
@@ -108,12 +114,12 @@ kable(data.frame(df), align="crr") %>% #digits=c(1) %>%
 ```
 And I assumed a 5% CV on harvest for all year (again as a placeholder).
 
-I fit the spawner-recruitment model in the [Stan Bayesian modelling platform](https://mc-stan.org/), using the [rstan](https://mc-stan.org/rstan/index.html) package. More details on model structure, priors, diagnostics, etc. can be found in the `analysis` sub-folder of [the repository](https://github.com/Pacific-salmon-assess/fraser-pinks) 
+I fit the spawner-recruitment model in the [Stan Bayesian modelling platform](https://mc-stan.org/), using the [rstan](https://mc-stan.org/rstan/index.html) package. More details on model structure, priors, diagnostics, etc. can be found in the `analysis` sub-folder of [the repository](https://github.com/Pacific-salmon-assess/fraser-pinks). 
 
 ## Spawner-recruitment relationship
 
 Here are posterior distributions for a few key parameters including magnitude of within-stock density dependence (beta), intrinsic productivity (ln alpha), serial correlation in recruitment residuals (phi) and magnitude of recruitment variation (sigma).
-```{r parameter-hist-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "75%"}
+```{r parameter-hist-plot, warning = FALSE, out.width = "75%"}
 post_df <- data.frame(
   parameter = factor(rep(c("lnalpha", "beta", "phi","sigma"), each=dim(model_pars$lnalpha))),
   posterior = c(model_pars$lnalpha, (model_pars$beta*-1), model_pars$phi, model_pars$sigma_R)
@@ -124,12 +130,12 @@ ggplot(post_df, aes(x = posterior)) +
   xlab("Posterior value") +
   ylab("") +
   facet_wrap(~ parameter, scales="free") +
-  theme_bw()+
+  theme_bw() +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank())
 ```
 And this is what the spawner-recruitment relationship looks like. 
-```{r }
+```{r SR-data-wrangle}
 max_samples <- dim(model_pars$lnalpha)
 
 spwn <- exp(model_pars$lnS)
@@ -141,7 +147,8 @@ rec.quant <- apply(rec, 2, quantile, probs=c(0.05,0.5,0.95))[,2:32]
 brood_t <- as.data.frame(cbind(data$year[1:31],t(spwn.quant), t(rec.quant)))
 colnames(brood_t) <- c("BroodYear","S_lwr","S_med","S_upr","R_lwr","R_med","R_upr")
 
-brood_t <- as.data.frame(brood_t)
+brood_t <- as.data.frame(brood_t) |>
+  round(2)
 
 # SR relationship
 spw <- seq(0,max(brood_t[,4]),length.out=100)
@@ -156,12 +163,12 @@ for(i in 1:max_samples){
 
 SR_pred <- cbind(spw,t(apply(SR_pred,c(1),quantile,probs=c(0.05,0.5,0.95),na.rm=T)))
 colnames(SR_pred) <- c("Spawn", "Rec_lwr","Rec_med","Rec_upr")
-SR_pred <- as.data.frame(SR_pred)
-
+SR_pred <- as.data.frame(SR_pred) |>
+  round(2)
 ```
 
-```{r sr-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "80%"}
-ggplot() +
+```{r SR-plot, warning = FALSE, out.height='80%', out.width = '80%'}
+p <- ggplot() +
   geom_ribbon(data = SR_pred, aes(x = Spawn, ymin = Rec_lwr, ymax = Rec_upr),
               fill = "grey80", alpha=0.5, linetype=2, colour="gray46") +
   geom_line(data = SR_pred, aes(x = Spawn, y = Rec_med), color="black", size = 1) +
@@ -171,7 +178,7 @@ ggplot() +
                  height=0, colour = "grey", height = 0, size = 0.3) +
   geom_point(data = brood_t, aes(x = S_med, y = R_med, color=BroodYear, width = 0.9), size = 3)+
   coord_cartesian(xlim=c(0, 20), ylim=c(0,max(brood_t[,7]))) +
-  scale_colour_viridis_c()+
+  scale_colour_viridis_c(name = "Brood Year")+
   xlab("Spawners (millions)") +
   ylab("Recruits (millions)") +
   theme_bw() +
@@ -182,36 +189,39 @@ ggplot() +
         legend.text = element_text(size=8))+
   geom_abline(intercept = 0, slope = 1,col="dark grey")
 
+plotly::ggplotly(p) |>
+  config(displayModeBar = FALSE) |>
+  layout() #add args here
 ```
 
 Here are the recruitment deviations over time which suggest little evidence for directional change in productivity, though last three brood years have all been below average. 
-```{r resid-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "75%"}
+```{r resid-plot, warning = FALSE, out.width = "75%"}
 resid <- model_pars$lnresid
 resid.quant <- apply(resid, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))[,1:31]
 
 resids <- as.data.frame(cbind(data$year[1:31], t(resid.quant)))
 colnames(resids) <- c("year","lwr","midlwr","mid","midupper","upper")
 
-ggplot(resids, aes(x=year, y = mid), show.legend = F) +
-  geom_line(show.legend = F, color = rgb(1,0,0, alpha=0.2), lwd = 1.5) + 
-  geom_ribbon(aes(ymin = lwr, ymax = upper), show.legend = F, fill = rgb(1,0,0, alpha=0.2)) +
-  geom_ribbon(aes(ymin = midlwr, ymax = midupper), show.legend = F, fill = rgb(1,0,0, alpha=0.2)) +
+ggplot(resids, aes(x=year, y = mid), show.legend = FALSE) +
+  geom_line(show.legend = FALSE, color = rgb(1,0,0, alpha=0.2), lwd = 1.5) + 
+  geom_ribbon(aes(ymin = lwr, ymax = upper), show.legend = FALSE, fill = rgb(1,0,0, alpha=0.2)) +
+  geom_ribbon(aes(ymin = midlwr, ymax = midupper), show.legend = FALSE, fill = rgb(1,0,0, alpha=0.2)) +
   coord_cartesian(ylim=c(-2,2)) +
   xlab("Brood year") +
   ylab("Recruitment residuals") +
   theme(legend.position = "none") +
-  geom_abline(intercept = 0, slope = 0,col="dark grey", lty=2)+
+  geom_abline(intercept = 0, slope = 0, col = "dark grey", lty = 2) +
   theme_bw()
 
 ```
 
 ## Benchmarks and status
 
-Here are estimated benchmarks (all values are in units of millions of fish except U~MSY~). Under the Wild Salmon Policy 80% of S~MSY~ is typically used as the upper biological benchmark, and S~GEN~ as the lower biological benchmark ([Holt and Bradford. 2011](https://www.tandfonline.com/doi/abs/10.1080/02755947.2011.578525)). Also shown are the 25th and 50th percentiles which have been proposed as alternative lower and upper benchmarks for data limited stocks ([Holt et al. 2018](https://www.dfo-mpo.gc.ca/csas-sccs/Publications/ResDocs-DocRech/2018/2018_011-eng.html)). 
-```{r }
+Here are estimated benchmarks (all values are in units of millions of fish except $U_{MSY}$). Under the Wild Salmon Policy 80% of $S_{MSY}$ is typically used as the upper biological benchmark, and $S_{GEN}$ as the lower biological benchmark ([Holt and Bradford. 2011](https://www.tandfonline.com/doi/abs/10.1080/02755947.2011.578525)). Also shown are the 25^th^ and 50^th^ percentiles which have been proposed as alternative lower and upper benchmarks for data limited stocks ([Holt et al. 2018](https://www.dfo-mpo.gc.ca/csas-sccs/Publications/ResDocs-DocRech/2018/2018_011-eng.html)). 
+```{r benchmarks}
 # Sgen function
 get_Sgen <- function(a, b, int_lower, int_upper, SMSY) {
-  fun_Sgen <- function(Sgen, a, b, SMSY) {Sgen * a * exp( - b*Sgen) - SMSY}
+  fun_Sgen <- function(Sgen, a, b, SMSY) {Sgen * a * exp(-b * Sgen) - SMSY}
   Sgen <- uniroot(fun_Sgen, interval=c(int_lower, int_upper), a=a, b=b, SMSY=SMSY)$root
 }
 
@@ -223,9 +233,9 @@ for(i in 1:1000){
   r <- sample(seq(1,1000),1,replace=T)
   a <- model_pars$lnalpha[r]
   b <- model_pars$beta[r]
-  bench[i,2] <- (1 − lambert_W0(exp(1 - a))) / b # smsy
+  bench[i,2] <- (1 - lambert_W0(exp(1 - a))) / b # smsy
   bench[i,1] <- get_Sgen(exp(a),b,-1,1/b*2,bench[i,2]) # sgen
-  bench[i,3] <- (1 − lambert_W0(exp(1 - a)))# umsy
+  bench[i,3] <- (1 - lambert_W0(exp(1 - a)))# umsy
 }
   
 bench[,2] <- bench[,2]*0.8
@@ -248,8 +258,8 @@ kable(data.frame(benchmarks.df), align="crr") %>% #digits=c(1) %>%
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
-This is what reconstructed harvest rate looks like over time relative to U~MSY~.  
-```{r exploit-rate-plot,message = FALSE, warning = FALSE, fig.align = "center", out.width = "75%"}
+This is what reconstructed harvest rate looks like over time relative to $U_{MSY}$.  
+```{r exploit-rate-plot, warning = FALSE, out.width = "75%"}
 er <- model_pars$U
 er.quant <- apply(er, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))
 
@@ -273,8 +283,8 @@ ggplot(er_df, aes(x=year, y = mid), show.legend = F) +
 
 ```
 
-And here is what reconstructed spawner abundance looks like over time relative to upper (80% S~MSY~) and lower (S~GEN~) biological benchmarks. 
-```{r status-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "75%"}
+And here is what reconstructed spawner abundance looks like over time relative to upper (80% $S_{MSY}$) and lower ($S_{GEN}$) biological benchmarks. 
+```{r status-plot, warning = FALSE, out.width = "75%"}
 spwn <- model_pars$S
 spwn.quant <- apply(spwn, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))
 
@@ -300,9 +310,9 @@ ggplot(spwn_df, aes(x=year, y = mid), show.legend = F) +
 
 ## Profiles
 
-We can also visualize expected yield and recruitment as a function of spawning escapement via "optimal" yield, recruitment and overfishign profiles. In panel (a) the optimal yield profile illustrates the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable yield (MSY). In panel (b) the optimal recruitment profile illustrates the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable recruitment (S~MSR~). In panel (c) the overfishing profile illustrates the probability that sustained yield (SY) is reduced to less than a percentage (70%, 80%, or 90%) of MSY given a fixed level of escapement and is calculated as 1 – P(SY > X% of MSY) at S < S~MSY~ , and 0 at S > S~MSY~ Historic spawning escapements are shown along x-axis.
+We can also visualize expected yield and recruitment as a function of spawning escapement via "optimal" yield, recruitment and overfishing profiles. In panel (a) the optimal yield profile illustrates the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable yield ($S_{MSY}$). In panel (b) the optimal recruitment profile illustrates the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable recruitment ($S_{MSR}$). In panel (c) the overfishing profile illustrates the probability that sustained yield ($SY$) is reduced to less than a percentage (70%, 80%, or 90%) of $MSY$ given a fixed level of escapement and is calculated as 1 – P($SY$ > X% of $MSY$) at $S$ < $S_{MSY}$ , and 0 at $S$ > $S_{MSY}$. Historic spawning escapements are shown along x-axis.
 
-```{r profile-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "85%"}
+```{r profile-plot, warning = FALSE, out.width = "85%"}
 spw <- seq(0,max(brood_t[,4]),length.out=100)
 Profiles <- array(NA, dim = c(length(spw),max_samples,9))
 for(i in 1:max_samples){
@@ -313,7 +323,7 @@ for(i in 1:max_samples){
   R_pred[which(!is.finite(R_pred))] <- 0
   pred_spwn <- spw
   yield <- R_pred-pred_spwn
-  S_msy_c <- (1 − lambert_W0(exp(1 - a))) / b
+  S_msy_c <- (1 - lambert_W0(exp(1 - a))) / b
   msr_c <- max(R_pred)
   S_msr_c <- pred_spwn[which.max(R_pred)]
   msy_c <- max(yield)
@@ -398,6 +408,7 @@ g <- ggarrange(a,b,c,nrow =3, labels = c("a", "b", "c"), heights = c(0.75,0.75,0
 print(g)
 ```
 
+<<<<<<< HEAD
 # Sources of Uncertainty
 
 # Conclusions (and Advice)
@@ -407,6 +418,33 @@ print(g)
 # Sources of Information 
 
 # Appendix/Appendices
+=======
+# Kobe  
+
+Now we'll visualize $U_{MSY}$ and $S_{MSY}$ in a Kobe plot. The different quadrants represent different scenarios, where the upper left shows harvest above $U_{MSY}$ while the stock is below $S_{MSY}$, which is a dangerous place for a stock to be. The bottom right shows years where the stock is above $S_{MSY}$ and harvest is below $U_{MSY}$ which could allow the stock to be harvested more. The other quadrants represent moderately risky states for the stock to be in. The dotted vertical line shows 80% $S_{MSY}$ (the wild salmon policy benchmark).       
+
+```{r kobe-plot, warning = FALSE, out.height='80%', out.width = '80%'}
+kobe_df <- data.frame(S = spwn_df$mid, 
+                      U = er_df$mid, 
+                      year = spwn_df$year) |>
+  mutate(U_Umsy = round(U/benchmarks[3,1] ,2), 
+         S_Smsy = round(S/(benchmarks[1,1]*1.25), 2)) #correct from 80%Smsy to Smsy
+
+p <- ggplot(kobe_df, aes(S_Smsy, U_Umsy)) +
+  geom_vline(xintercept = 1, lty = 2) +
+  geom_vline(xintercept = 0.8, lty = 3) +
+  geom_hline(yintercept = 1, lty = 2) +
+  geom_path() +
+  geom_point(aes(color=year), size=3) +
+  scale_colour_viridis_c(name="Year") +
+  theme_classic() +
+  labs(y="U/Umsy", x= "S/Smsy")
+
+plotly::ggplotly(p) |>
+  config(displayModeBar = FALSE) 
+```
+
+>>>>>>> brendan/main
 # Next steps
 
 Initial thoughts on some next steps include:
@@ -414,4 +452,4 @@ Initial thoughts on some next steps include:
 - come up with a way to specify defensible observation error CVs on spawner time-series (e.g., from mark-recapture estimates) over time.
 - identify alternative scenarios to consider for sensitivity analysis (e.g., assume some magnitude of bias for some years of escapement estimates to quantify sensitivity to violation of assumption that escapement estimates are un-biased?)
 - track-down published length-fecundity relationship(s) for pinks and any data on sex-ratios to develop a total egg (or egg mass) based spawner-recruitment relationship that would allow for explicit consideration of consequences of declining pink salmon size for benchmarks.  
-- Do some simple forward projections of existing (and alternative) harvest control rule with plausible magnitude of implementation error and sumarize performance relative to fishery and conservation objectives.   
+- Do some simple forward projections of existing (and alternative) harvest control rule with plausible magnitude of implementation error and summarize performance relative to fishery and conservation objectives.   
