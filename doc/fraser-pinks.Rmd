@@ -39,9 +39,12 @@ h2 { /* Header 2 */
 
 ```{r setup, include=FALSE}
 # Settings and libraries
-knitr::opts_chunk$set(echo = FALSE, message=FALSE, cache=FALSE, include=TRUE)
-knitr::opts_chunk$set(dpi=300)
-
+knitr::opts_chunk$set(echo = FALSE, 
+                      message = FALSE, 
+                      cache = FALSE, 
+                      include = TRUE,
+                      dpi=300,
+                      fig.align = "center")
 library(rstan)
 library(tidyverse)
 library(kableExtra)
@@ -57,7 +60,6 @@ data <- read.csv("../data/fr_pk_spw_har.csv")
 stan.fit <- readRDS("../analysis/output/SS-SR_AR1.stan.fit.rds")
 stan.data <- readRDS("../analysis/output/SS-SR_AR1.stan.data.rds")
 model_pars <- rstan::extract(stan.fit)
-
 ```
 # Background
 This doc summarizes preliminary exploratory analysis of Fraser pink salmon spawner-recruitment relationship and associated biological benchmarks. Repository with all data and code to reproduce the analysis, and this doc, can be found [here](https://github.com/Pacific-salmon-assess/fraser-pinks) .  
@@ -65,7 +67,7 @@ This doc summarizes preliminary exploratory analysis of Fraser pink salmon spawn
 # Data and model formualtion
 First, a quick look at the raw escapement and harvest time series.  
 
-```{r escape-harvest-plot, echo=FALSE, fig.align = "center", out.height='80%', out.width = '80%'}
+```{r escape-harvest-plot, out.height='80%', out.width = '80%'}
 escape_harvest <- gather(data[,1:3], type, count, harvest:spawn, factor_key=TRUE) |>
   mutate(count_million = round(count/1000000, 2))
 
@@ -102,7 +104,7 @@ I fit the spawner-recruitment model in the [Stan Bayesian modelling platform](ht
 # Spawner-recruitment relationship
 
 Here are posterior distributions for a few key parameters including magnitude of within-stock density dependence (beta), intrinsic productivity (ln alpha), serial correlation in recruitment residuals (phi) and magnitude of recruitment variation (sigma).
-```{r parameter-hist-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "75%"}
+```{r parameter-hist-plot, warning = FALSE, out.width = "75%"}
 post_df <- data.frame(
   parameter = factor(rep(c("lnalpha", "beta", "phi","sigma"), each=dim(model_pars$lnalpha))),
   posterior = c(model_pars$lnalpha, (model_pars$beta*-1), model_pars$phi, model_pars$sigma_R)
@@ -150,7 +152,7 @@ SR_pred <- as.data.frame(SR_pred) |>
   round(2)
 ```
 
-```{r SR-plot, warning = FALSE, fig.align = "center", out.width = "80%"}
+```{r SR-plot, warning = FALSE, out.height='80%', out.width = '80%'}
 p <- ggplot() +
   geom_ribbon(data = SR_pred, aes(x = Spawn, ymin = Rec_lwr, ymax = Rec_upr),
               fill = "grey80", alpha=0.5, linetype=2, colour="gray46") +
@@ -178,7 +180,7 @@ plotly::ggplotly(p) |>
 ```
 
 Here are the recruitment deviations over time which suggest little evidence for directional change in productivity, though last three brood years have all been below average. 
-```{r resid-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "75%"}
+```{r resid-plot, warning = FALSE, out.width = "75%"}
 resid <- model_pars$lnresid
 resid.quant <- apply(resid, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))[,1:31]
 
@@ -201,7 +203,7 @@ ggplot(resids, aes(x=year, y = mid), show.legend = FALSE) +
 # Benchmarks and status
 
 Here are estimated benchmarks (all values are in units of millions of fish except $U_{MSY}$). Under the Wild Salmon Policy 80% of $S_{MSY}$ is typically used as the upper biological benchmark, and $S_{GEN}$ as the lower biological benchmark ([Holt and Bradford. 2011](https://www.tandfonline.com/doi/abs/10.1080/02755947.2011.578525)). Also shown are the 25^th^ and 50^th^ percentiles which have been proposed as alternative lower and upper benchmarks for data limited stocks ([Holt et al. 2018](https://www.dfo-mpo.gc.ca/csas-sccs/Publications/ResDocs-DocRech/2018/2018_011-eng.html)). 
-```{r }
+```{r benchmarks}
 # Sgen function
 get_Sgen <- function(a, b, int_lower, int_upper, SMSY) {
   fun_Sgen <- function(Sgen, a, b, SMSY) {Sgen * a * exp(-b * Sgen) - SMSY}
@@ -242,7 +244,7 @@ kable(data.frame(benchmarks.df), align="crr") %>% #digits=c(1) %>%
 ```
 
 This is what reconstructed harvest rate looks like over time relative to $U_{MSY}$.  
-```{r exploit-rate-plot,message = FALSE, warning = FALSE, fig.align = "center", out.width = "75%"}
+```{r exploit-rate-plot, warning = FALSE, out.width = "75%"}
 er <- model_pars$U
 er.quant <- apply(er, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))
 
@@ -267,7 +269,7 @@ ggplot(er_df, aes(x=year, y = mid), show.legend = F) +
 ```
 
 And here is what reconstructed spawner abundance looks like over time relative to upper (80% $S_{MSY}$) and lower ($S_{GEN}$) biological benchmarks. 
-```{r status-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "75%"}
+```{r status-plot, warning = FALSE, out.width = "75%"}
 spwn <- model_pars$S
 spwn.quant <- apply(spwn, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))
 
@@ -295,7 +297,7 @@ ggplot(spwn_df, aes(x=year, y = mid), show.legend = F) +
 
 We can also visualize expected yield and recruitment as a function of spawning escapement via "optimal" yield, recruitment and overfishing profiles. In panel (a) the optimal yield profile illustrates the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable yield ($S_{MSY}$). In panel (b) the optimal recruitment profile illustrates the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable recruitment ($S_{MSR}$). In panel (c) the overfishing profile illustrates the probability that sustained yield ($SY$) is reduced to less than a percentage (70%, 80%, or 90%) of $MSY$ given a fixed level of escapement and is calculated as 1 – P($SY$ > X% of $MSY$) at $S$ < $S_{MSY}$ , and 0 at $S$ > $S_{MSY}$. Historic spawning escapements are shown along x-axis.
 
-```{r profile-plot, message = FALSE, warning = FALSE, fig.align = "center", out.width = "85%"}
+```{r profile-plot, warning = FALSE, out.width = "85%"}
 spw <- seq(0,max(brood_t[,4]),length.out=100)
 Profiles <- array(NA, dim = c(length(spw),max_samples,9))
 for(i in 1:max_samples){
@@ -395,7 +397,7 @@ print(g)
 
 Now we'll visualize $U_{MSY}$ and $S_{MSY}$ in a Kobe plot. The different quadrants represent different scenarios, where the upper left shows harvest above $U_{MSY}$ while the stock is below $S_{MSY}$, which is a dangerous place for a stock to be. The bottom right shows years where the stock is above $S_{MSY}$ and harvest is below $U_{MSY}$ which could allow the stock to be harvested more. The other quadrants represent moderately risky states for the stock to be in. The dotted vertical line shows 80% $S_{MSY}$ (the wild salmon policy benchmark).       
 
-```{r kobe-plot, message = FALSE, warning = FALSE, fig.align = "center", out.height='80%', out.width = '80%'}
+```{r kobe-plot, warning = FALSE, out.height='80%', out.width = '80%'}
 kobe_df <- data.frame(S = spwn_df$mid, 
                       U = er_df$mid, 
                       year = spwn_df$year) |>
