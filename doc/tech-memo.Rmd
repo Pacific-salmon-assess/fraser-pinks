@@ -21,11 +21,21 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 bulleted list or table covering:
 - name(s) of SMU(s)
 - the CU(s) that are contained within SMU
-- biological benchmark(s)
-   - e.g., the $LRP$/$S_{GEN}$ with uncertainty bounds
+- biological benchmark determined by Science
+   - i.e., the LRP (Sgen) with uncertainty bounds
+- advice for joint Science - FAM PA component(s)
+   - i.e., removal reference (RR)
 - list of (but maybe not the values of?) other biological benchmarks that fisheries managers may want to consider when ID'ing management reference points
+   - i.e., Upper Stock Reference (USR), Target Reference Point (TRP), and Harvest Decision Rules (HDRs)
 
 # Background  
+
+
+
+
+
+# Data Sources and Acknowledgements
+Data collection, quality control, management, etc. that the analysis relied upon. Include dates (year) when data set used was received and/or last updated.
 
 
  
