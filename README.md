@@ -8,3 +8,4 @@ Fraser River pink salmon spawner recruitment analysis with state-space model to 
 - `document`: Code to render Rmd summary of data sources, model structure and fitting, and inference
 - `misc`: Bits and pieces of original files provided with a summary of methods that describes why certain CVs were chosen for observation errors.   
  
+ blah blah
