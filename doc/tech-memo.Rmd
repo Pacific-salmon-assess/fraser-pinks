@@ -17,22 +17,84 @@ output:
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
-# Summary
-bulleted list or table covering:
+
+*The purpose of this template is to document the Precautionary Approach framework components for Pacific Salmon that Science is responsible for producing. This memo does not provide stock status. The template is set up so that:*
+  - *main body = advice/information for managers who need to implement PA/FSP*
+  - *appendices = technical details / scientific documentation necessary to reproduce the analysis*
+
+# Summary  
+bulleted list or table covering:  
 - name(s) of SMU(s)
 - the CU(s) that are contained within SMU
 - biological benchmark determined by Science
-   - i.e., the LRP (Sgen) with uncertainty bounds
+   - i.e., the LRP (Sgen) with uncertainty bounds, WSP biological BMs (upper & lower)
 - advice for joint Science - FAM PA component(s)
    - i.e., removal reference (RR)
 - list of (but maybe not the values of?) other biological benchmarks that fisheries managers may want to consider when ID'ing management reference points
    - i.e., Upper Stock Reference (USR), Target Reference Point (TRP), and Harvest Decision Rules (HDRs)
+- the next recommended year and/or schedule (e.g. every X years) for re-evaluation of the biological benchmarks estimated in this memo and rationale for the recommended timeframe  
 
 # Background  
+*Suggest some mostly generic language that can be cut & pasted into each PA memo re: purpose of memo, what it is/is not. PA components that Science is directly responsible for,  jointly responsible for, and provides support to Fisheries Management for.*
+
+# Biological Context  
+- stock aggregation units/structure - i.e. how does CU, MU & SMU relate for this group?
+- are there any previous estimates of PA components? if yes: what are they and when were they estimated?
+
+# Harvest Control Rule  
+- description / diagram of current HCR
+- ID any "implied" management values that come from the HCR (will be useful for comparative purposes to biological benchmarks)
+
+FR PK doc: 
+- HCR plots from ppt (Aug2022)
+
+# Data summary & plots  
+- descriptive plots of data used in analysis to show quantity of data available
+- any description/caveats re: data quality would be useful to include in this section, as well
+- data tables in appendix
+
+FR PK doc:
+- raw escapement & harvest boxplots (3.1)
+- table of escapement assessment methods (3.1)
+
+# Methods - summary  
+*short, general audience description of methods and how uncertainty was incorporated (or not). Put details that are required for scientific documentation in appendix*
+
+# Results for PA/FSP implementation  
+## Part A: benchmark/reference point values
+*table(s) of benchmark values and uncertainty range: for both those that Science is responsible / co-responsible for as well as benchmarks that could help FAM ID management reference points* 
+
+FR PK doc:
+- table of benchmarks & CIs (3.3)
+
+## Part B: risk context
+*things that may be helpful for managers as they determine management reference points. e.g., kobe plots, comparison of biological benchmarks to: historical data (spawners, harvest rates, etc.), harvest control rules, etc.), risk tables/plots/profiles.*
+
+FR PK doc:
+- Sgen & 80%Smsy vs SPN
+- HR vs Umsy (3.3)
+- expected yield & recruitment profiles (3.4)
+- Kobe plot (4)
+
+# Sources of Uncertainty  
+*Q: do we need this section here, given above section re: risk context? OR maybe change this explicitly to a section talking about whether time-varying benchmarks should be given consideration?*
+
+FR PK doc (time-varying):
+- SR plot, color coded to time (3.2)
+- recruitment resids (3.2)
 
 
-
-
+# Other considerations
+*Are there other things that Fisheries Management should consider or should know about the results in this memo when developing management benchmarks?*
 
 # Data Sources and Acknowledgements
-Data collection, quality control, management, etc. that the analysis relied upon. Include dates (year) when data set used was received and/or last updated.
+*Data collection, quality control, management, etc. that the analysis relied upon. Include dates (year) when data set used was received and/or last updated.*
+
+# Appendices  
+1. data
+2. methods
+3. results that are not included in main body of memo - anticipated that these will mostly be diagnostic in nature?
+4. sources of uncertainty (assuming that it will be removed from main body of document)
+4. references
+ 
+
