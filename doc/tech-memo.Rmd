@@ -36,6 +36,3 @@ bulleted list or table covering:
 
 # Data Sources and Acknowledgements
 Data collection, quality control, management, etc. that the analysis relied upon. Include dates (year) when data set used was received and/or last updated.
-
-
- 
