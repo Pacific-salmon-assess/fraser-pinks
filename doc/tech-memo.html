@@ -11,7 +11,7 @@
 
 
 
-<title>tech-memo</title>
+<title>Technical Memo - Template (DRAFT)</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1354,23 +1354,17 @@ overflow-y: auto;
 border: 1px solid #ddd;
 border-radius: 4px;
 }
-.tabset-dropdown > .nav-tabs > li.active:before {
-content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+content: "\e259";
 font-family: 'Glyphicons Halflings';
 display: inline-block;
 padding: 10px;
 border-right: 1px solid #ddd;
 }
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-content: "";
-border: none;
-}
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-content: "";
+content: "\e258";
 font-family: 'Glyphicons Halflings';
-display: inline-block;
-padding: 10px;
-border-right: 1px solid #ddd;
+border: none;
 }
 .tabset-dropdown > .nav-tabs > li.active {
 display: block;
@@ -1472,22 +1466,164 @@ border-radius: 0px;
 
 
 
-<h1 class="title toc-ignore">tech-memo</h1>
-<h4 class="date">09 December, 2022</h4>
+<h1 class="title toc-ignore">Technical Memo - Template (DRAFT)</h1>
+<h4 class="date">21 December, 2022</h4>
 
 </div>
 
 
+<p><em>The purpose of this template is to document the Precautionary
+Approach framework components for Pacific Salmon that Science is
+responsible for producing. This memo does not provide stock status. The
+template is set up so that:</em> - <em>main body = advice/information
+for managers who need to implement PA/FSP</em> - <em>appendices =
+technical details / scientific documentation necessary to reproduce the
+analysis</em></p>
 <div id="summary" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Summary</h1>
-<p>bulleted list or table covering: - name(s) of SMU(s) - the CU(s) that
-are contained within SMU - biological benchmark(s) - e.g., the <span class="math inline">\(LRP\)</span>/<span class="math inline">\(S_{GEN}\)</span> with uncertainty bounds - list of
-(but maybe not the values of?) other biological benchmarks that
-fisheries managers may want to consider when ID’ing management reference
-points</p>
+<p>bulleted list or table covering:</p>
+<ul>
+<li>name(s) of SMU(s)</li>
+<li>the CU(s) that are contained within SMU</li>
+<li>biological benchmark determined by Science
+<ul>
+<li>i.e., the LRP (Sgen) with uncertainty bounds, WSP biological BMs
+(upper &amp; lower)</li>
+</ul></li>
+<li>advice for joint Science - FAM PA component(s)
+<ul>
+<li>i.e., removal reference (RR)</li>
+</ul></li>
+<li>list of (but maybe not the values of?) other biological benchmarks
+that fisheries managers may want to consider when ID’ing management
+reference points
+<ul>
+<li>i.e., Upper Stock Reference (USR), Target Reference Point (TRP), and
+Harvest Decision Rules (HDRs)</li>
+</ul></li>
+<li>the next recommended year and/or schedule (e.g. every X years) for
+re-evaluation of the biological benchmarks estimated in this memo and
+rationale for the recommended timeframe</li>
+</ul>
 </div>
 <div id="background" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Background</h1>
+<p><em>Suggest some mostly generic language that can be cut &amp; pasted
+into each PA memo re: purpose of memo, what it is/is not. PA components
+that Science is directly responsible for, jointly responsible for, and
+provides support to Fisheries Management for.</em></p>
+</div>
+<div id="biological-context" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Biological Context</h1>
+<ul>
+<li>stock aggregation units/structure - i.e. how does CU, MU &amp; SMU
+relate for this group?</li>
+<li>are there any previous estimates of PA components? if yes: what are
+they and when were they estimated?</li>
+</ul>
+</div>
+<div id="harvest-control-rule" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Harvest Control
+Rule</h1>
+<ul>
+<li>description / diagram of current HCR</li>
+<li>ID any “implied” management values that come from the HCR (will be
+useful for comparative purposes to biological benchmarks)</li>
+</ul>
+<p>FR PK doc:</p>
+<ul>
+<li>HCR plots from ppt (Aug2022)</li>
+</ul>
+</div>
+<div id="data-summary-plots" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Data summary &amp;
+plots</h1>
+<ul>
+<li>descriptive plots of data used in analysis to show quantity of data
+available</li>
+<li>any description/caveats re: data quality would be useful to include
+in this section, as well</li>
+<li>data tables in appendix</li>
+</ul>
+<p>FR PK doc:</p>
+<ul>
+<li>raw escapement &amp; harvest boxplots (3.1)</li>
+<li>table of escapement assessment methods (3.1)</li>
+</ul>
+</div>
+<div id="methods---summary" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> Methods - summary</h1>
+<p><em>short, general audience description of methods and how
+uncertainty was incorporated (or not). Put details that are required for
+scientific documentation in appendix</em></p>
+</div>
+<div id="results-for-pafsp-implementation" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> Results for PA/FSP
+implementation</h1>
+<div id="part-a-benchmarkreference-point-values" class="section level2" number="7.1">
+<h2><span class="header-section-number">7.1</span> Part A:
+benchmark/reference point values</h2>
+<p><em>table(s) of benchmark values and uncertainty range: for both
+those that Science is responsible / co-responsible for as well as
+benchmarks that could help FAM ID management reference points</em></p>
+<p>FR PK doc:</p>
+<ul>
+<li>table of benchmarks &amp; CIs (3.3)</li>
+</ul>
+</div>
+<div id="part-b-risk-context" class="section level2" number="7.2">
+<h2><span class="header-section-number">7.2</span> Part B: risk
+context</h2>
+<p><em>things that may be helpful for managers as they determine
+management reference points. e.g., kobe plots, comparison of biological
+benchmarks to: historical data (spawners, harvest rates, etc.), harvest
+control rules, etc.), risk tables/plots/profiles.</em></p>
+<p>FR PK doc:</p>
+<ul>
+<li>Sgen &amp; 80%Smsy vs SPN</li>
+<li>HR vs Umsy (3.3)</li>
+<li>expected yield &amp; recruitment profiles (3.4)</li>
+<li>Kobe plot (4)</li>
+</ul>
+</div>
+</div>
+<div id="sources-of-uncertainty" class="section level1" number="8">
+<h1><span class="header-section-number">8</span> Sources of
+Uncertainty</h1>
+<p><em>Q: do we need this section here, given above section re: risk
+context? OR maybe change this explicitly to a section talking about
+whether time-varying benchmarks should be given consideration?</em></p>
+<p>FR PK doc (time-varying):</p>
+<ul>
+<li>SR plot, color coded to time (3.2)</li>
+<li>recruitment resids (3.2)</li>
+</ul>
+</div>
+<div id="other-considerations" class="section level1" number="9">
+<h1><span class="header-section-number">9</span> Other
+considerations</h1>
+<p><em>Are there other things that Fisheries Management should consider
+or should know about the results in this memo when developing management
+benchmarks?</em></p>
+</div>
+<div id="data-sources-and-acknowledgements" class="section level1" number="10">
+<h1><span class="header-section-number">10</span> Data Sources and
+Acknowledgements</h1>
+<p><em>Data collection, quality control, management, etc. that the
+analysis relied upon. Include dates (year) when data set used was
+received and/or last updated.</em></p>
+</div>
+<div id="appendices" class="section level1" number="11">
+<h1><span class="header-section-number">11</span> Appendices</h1>
+<ol style="list-style-type: decimal">
+<li>data</li>
+<li>methods</li>
+<li>results that are not included in main body of memo - anticipated
+that these will mostly be diagnostic in nature?</li>
+<li>sources of uncertainty (assuming that it will be removed from main
+body of document)</li>
+<li>references</li>
+</ol>
 </div>
 
 
