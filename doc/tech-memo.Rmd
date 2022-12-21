@@ -18,9 +18,10 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
 
-*The purpose of this template is to document the Precautionary Approach framework components for Pacific Salmon that Science is responsible for producing. This memo does not provide stock status. The template is set up so that:*
-  - *main body = advice/information for managers who need to implement PA/FSP*
-  - *appendices = technical details / scientific documentation necessary to reproduce the analysis*
+*The purpose of this template is to document the Precautionary Approach framework components for Pacific Salmon that Science Branch is responsible for producing. This memo is not meant to provide an assessment of stock status. The template is set up so that:*
+
+  - *main body = advice/information for managers who need to determine the reference points they are responsible when implementing the PA/FSP*
+  - *appendices = technical information (e.g. additional results) of interest & scientific documentation necessary to reproduce the analysis*
 
 # Summary  
 bulleted list or table covering:
@@ -33,10 +34,11 @@ bulleted list or table covering:
    - i.e., removal reference (RR)
 - list of (but maybe not the values of?) other biological benchmarks that fisheries managers may want to consider when ID'ing management reference points
    - i.e., Upper Stock Reference (USR), Target Reference Point (TRP), and Harvest Decision Rules (HDRs)
-- the next recommended year and/or schedule (e.g. every X years) for re-evaluation of the biological benchmarks estimated in this memo and rationale for the recommended timeframe  
+- the next recommended year and/or schedule (e.g. every X years) for re-evaluation of the biological benchmarks estimated in this memo and summary rationale for the recommended timeframe  
+- the recommended approach to take if the benchmarks/reference points are NOT re-evaluated within the recommended timeframe
 
 # Background  
-*Suggest some mostly generic language that can be cut & pasted into each PA memo re: purpose of memo, what it is/is not. PA components that Science is directly responsible for,  jointly responsible for, and provides support to Fisheries Management for.*
+*Suggest some mostly generic language that can be cut & pasted into each PA/FSP memo re: purpose of memo, what it is/is not. PA components that Science is directly responsible for,  jointly responsible for, and provides support to Fisheries Management for.*
 
 # Biological Context  
 - stock aggregation units/structure - i.e. how does CU, MU & SMU relate for this group?
@@ -63,7 +65,9 @@ FR PK doc:
 # Methods - summary  
 *short, general audience description of methods and how uncertainty was incorporated (or not). Put details that are required for scientific documentation in appendix*
 
-# Results for PA/FSP implementation  
+# Results for PA/FSP implementation 
+*focus in this section is on results that determine the reference points that Science Branch is responsible for and those that managers may want to consider when making decisions re: implementation of PA/FSP reference points*
+
 ## Part A: benchmark/reference point values
 *table(s) of benchmark values and uncertainty range: for both those that Science is responsible / co-responsible for as well as benchmarks that could help FAM ID management reference points* 
 
@@ -72,7 +76,7 @@ FR PK doc:
 - table of benchmarks & CIs (3.3)
 
 ## Part B: risk context
-*things that may be helpful for managers as they determine management reference points. e.g., kobe plots, comparison of biological benchmarks to: historical data (spawners, harvest rates, etc.), harvest control rules, etc.), risk tables/plots/profiles.*
+*things that may be helpful for managers as they determine management reference points. e.g., kobe plots, comparison of biological benchmarks to: historical data (spawners, harvest rates, etc.), harvest control rules, etc.), risk tables/plots/profiles, sensitivity analyses...*
 
 FR PK doc:
 
@@ -81,8 +85,15 @@ FR PK doc:
 - expected yield & recruitment profiles (3.4)
 - Kobe plot (4)
 
-# Sources of Uncertainty  
-*Q: do we need this section here, given above section re: risk context? OR maybe change this explicitly to a section talking about whether time-varying benchmarks should be given consideration?*
+# Sources of Uncertainty  / Time-Varying Considerations
+*Q: do we need "sources of uncertainty" here, given above section re: risk context? OR maybe change this explicitly to a section talking about whether time-varying benchmarks should be given consideration? Climate change considerations, etc.*
+
+include in this section:
+
+* recommended timeframe for next evaluation of reference points & benchmarks
+* rationale for that timeframe
+* recommendation for what to use if re-evaluation does not take place within the recommended timeframe & why
+
 
 FR PK doc (time-varying):
 
@@ -96,7 +107,8 @@ FR PK doc (time-varying):
 # Data Sources and Acknowledgements
 *Data collection, quality control, management, etc. that the analysis relied upon. Include dates (year) when data set used was received and/or last updated.*
 
-# Appendices  
+# Appendices
+*technical information that is not directly needed for management purposes, but provides additional information about the results, is necessary for documentation of the analysis and/or to allow for future reproducibility*
 1. data
 2. methods
 3. results that are not included in main body of memo - anticipated that these will mostly be diagnostic in nature?
