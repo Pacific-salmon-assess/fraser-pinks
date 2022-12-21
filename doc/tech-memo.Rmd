@@ -40,6 +40,15 @@ bulleted list or table covering:
 # Background  
 *Suggest some mostly generic language that can be cut & pasted into each PA/FSP memo re: purpose of memo, what it is/is not. PA components that Science is directly responsible for,  jointly responsible for, and provides support to Fisheries Management for.*
 
+*If helpful, could (generically) include what some biological benchmarks are (e.g. 80% Smsy, Umsy, etc.) and why they may be considered / informative when determining management reference points*
+
+include terminology that we want to use for all PA/FSP memos: 
+
+- biological benchmarks
+- biological reference points (?)
+- management reference points
+- etc.
+
 # Biological Context  
 - stock aggregation units/structure - i.e. how does CU, MU & SMU relate for this group?
 - are there any previous estimates of PA components? if yes: what are they and when were they estimated?
@@ -55,7 +64,7 @@ FR PK doc:
 # Data summary & plots  
 - descriptive plots of data used in analysis to show quantity of data available
 - any description/caveats re: data quality would be useful to include in this section, as well
-- data tables in appendix
+- data tables go in appendix
 
 FR PK doc:
 
@@ -66,10 +75,10 @@ FR PK doc:
 *short, general audience description of methods and how uncertainty was incorporated (or not). Put details that are required for scientific documentation in appendix*
 
 # Results for PA/FSP implementation 
-*focus in this section is on results that determine the reference points that Science Branch is responsible for and those that managers may want to consider when making decisions re: implementation of PA/FSP reference points*
+*focus in this section is on results that determine the reference points that Science Branch is responsible / jointly responsible for and biological reference points that managers may want to consider when making decisions re: implementation of PA/FSP reference points*
 
 ## Part A: benchmark/reference point values
-*table(s) of benchmark values and uncertainty range: for both those that Science is responsible / co-responsible for as well as benchmarks that could help FAM ID management reference points* 
+*table(s) of benchmark values and uncertainty range: for both those that Science is responsible / co-responsible for as well as benchmarks that could help FAM determine management reference points* 
 
 FR PK doc:
 
@@ -80,7 +89,7 @@ FR PK doc:
 
 FR PK doc:
 
-- Sgen & 80%Smsy vs SPN
+- Sgen & 80%Smsy vs SPN (3.3)
 - HR vs Umsy (3.3)
 - expected yield & recruitment profiles (3.4)
 - Kobe plot (4)
@@ -109,6 +118,7 @@ FR PK doc (time-varying):
 
 # Appendices
 *technical information that is not directly needed for management purposes, but provides additional information about the results, is necessary for documentation of the analysis and/or to allow for future reproducibility*
+
 1. data
 2. methods
 3. results that are not included in main body of memo - anticipated that these will mostly be diagnostic in nature?
