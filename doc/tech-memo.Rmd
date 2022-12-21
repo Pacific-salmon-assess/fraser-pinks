@@ -23,7 +23,8 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
   - *appendices = technical details / scientific documentation necessary to reproduce the analysis*
 
 # Summary  
-bulleted list or table covering:  
+bulleted list or table covering:
+
 - name(s) of SMU(s)
 - the CU(s) that are contained within SMU
 - biological benchmark determined by Science
@@ -46,6 +47,7 @@ bulleted list or table covering:
 - ID any "implied" management values that come from the HCR (will be useful for comparative purposes to biological benchmarks)
 
 FR PK doc: 
+
 - HCR plots from ppt (Aug2022)
 
 # Data summary & plots  
@@ -54,6 +56,7 @@ FR PK doc:
 - data tables in appendix
 
 FR PK doc:
+
 - raw escapement & harvest boxplots (3.1)
 - table of escapement assessment methods (3.1)
 
@@ -65,12 +68,14 @@ FR PK doc:
 *table(s) of benchmark values and uncertainty range: for both those that Science is responsible / co-responsible for as well as benchmarks that could help FAM ID management reference points* 
 
 FR PK doc:
+
 - table of benchmarks & CIs (3.3)
 
 ## Part B: risk context
 *things that may be helpful for managers as they determine management reference points. e.g., kobe plots, comparison of biological benchmarks to: historical data (spawners, harvest rates, etc.), harvest control rules, etc.), risk tables/plots/profiles.*
 
 FR PK doc:
+
 - Sgen & 80%Smsy vs SPN
 - HR vs Umsy (3.3)
 - expected yield & recruitment profiles (3.4)
@@ -80,6 +85,7 @@ FR PK doc:
 *Q: do we need this section here, given above section re: risk context? OR maybe change this explicitly to a section talking about whether time-varying benchmarks should be given consideration?*
 
 FR PK doc (time-varying):
+
 - SR plot, color coded to time (3.2)
 - recruitment resids (3.2)
 
@@ -95,5 +101,5 @@ FR PK doc (time-varying):
 2. methods
 3. results that are not included in main body of memo - anticipated that these will mostly be diagnostic in nature?
 4. sources of uncertainty (assuming that it will be removed from main body of document)
-4. references
+5. references
  
