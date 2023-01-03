@@ -103,7 +103,7 @@ include in this section:
 * recommended timeframe for next evaluation of reference points & benchmarks
 * rationale for that timeframe
 * recommendation for what to use if re-evaluation does not take place within the recommended timeframe & why
-* recommendation for what would trigger a rebuilding plan: how many year(s) of what metric (individual years vs running average vs ...) being below LRP would trigger a rebuilding plan, and rationale for recommendation 
+* recommendation for what would trigger a rebuilding plan: how many year(s) of what units/metric (individual years vs running average vs ...) being below LRP would trigger a rebuilding plan, and rationale for recommendation 
 
 
 FR PK doc (time-varying):
