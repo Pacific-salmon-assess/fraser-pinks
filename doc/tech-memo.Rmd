@@ -36,6 +36,7 @@ bulleted list or table covering:
    - i.e., Upper Stock Reference (USR), Target Reference Point (TRP), and Harvest Decision Rules (HDRs)
 - the next recommended year and/or schedule (e.g. every X years) for re-evaluation of the biological benchmarks estimated in this memo and summary rationale for the recommended timeframe  
 - the recommended approach to take if the benchmarks/reference points are NOT re-evaluated within the recommended timeframe
+- the recommended threshold for triggering a rebuilding plan
 
 # Background  
 *Suggest some mostly generic language that can be cut & pasted into each PA/FSP memo re: purpose of memo, what it is/is not. PA components that Science is directly responsible for,  jointly responsible for, and provides support to Fisheries Management for.*
@@ -102,6 +103,7 @@ include in this section:
 * recommended timeframe for next evaluation of reference points & benchmarks
 * rationale for that timeframe
 * recommendation for what to use if re-evaluation does not take place within the recommended timeframe & why
+* recommendation for what would trigger a rebuilding plan: how many year(s) of what metric (individual years vs running average vs ...) being below LRP would trigger a rebuilding plan, and rationale for recommendation 
 
 
 FR PK doc (time-varying):
