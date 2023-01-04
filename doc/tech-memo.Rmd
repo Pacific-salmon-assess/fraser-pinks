@@ -14,7 +14,19 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(kableExtra)
+library(here)
+
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE, 
+                      message = FALSE)
+
+#trying to source .Rmd but both are broken
+#source(here("doc/fraser-pinks.Rmd"))
+#rmarkdown::render(input = here("doc/fraser-pinks.Rmd"))
+
+
 ```
 
 
@@ -24,19 +36,30 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
   - *appendices = technical information (e.g. additional results) of interest & scientific documentation necessary to reproduce the analysis*
 
 # Summary  
-bulleted list or table covering:
 
-- name(s) of SMU(s)
-- the CU(s) that are contained within SMU
-- biological benchmark determined by Science
-   - i.e., the LRP (Sgen) with uncertainty bounds, WSP biological BMs (upper & lower)
-- advice for joint Science - FAM PA component(s)
-   - i.e., removal reference (RR)
-- list of (but maybe not the values of?) other biological benchmarks that fisheries managers may want to consider when ID'ing management reference points
-   - i.e., Upper Stock Reference (USR), Target Reference Point (TRP), and Harvest Decision Rules (HDRs)
-- the next recommended year and/or schedule (e.g. every X years) for re-evaluation of the biological benchmarks estimated in this memo and summary rationale for the recommended timeframe  
-- the recommended approach to take if the benchmarks/reference points are NOT re-evaluated within the recommended timeframe
-- the recommended threshold for triggering a rebuilding plan
+```{r summary-table}
+summary_df <- data.frame(attribute = c("SMU",
+                                       "biological benchmark",
+                                       "advice for joint science",
+                                       "other biological benchmarks to consider",
+                                       "next year of re-evaluation",
+                                       "recommended approach if points are NOT re-evaluated 
+                                       within timeframe",
+                                       "reccomended threshold to trigger a rebuilding plan"),
+                         data = c("Fraser Pink Salmon",
+                                  "80% Smsy",
+                                  "fish them??",
+                                  "Smsy in context of changing demographics (e.g. lower body 
+                                  mass, lower fecundity)",
+                                  "2025",
+                                  "figure it out!",
+                                  "in bottom right quadrant of kobe plot"))
+
+kbl(summary_df, 
+      col.names = NULL, 
+      align = "c") |>
+  kable_styling(bootstrap_options = "hover")
+```
 
 # Background  
 *Suggest some mostly generic language that can be cut & pasted into each PA/FSP memo re: purpose of memo, what it is/is not. PA components that Science is directly responsible for,  jointly responsible for, and provides support to Fisheries Management for.*
@@ -60,7 +83,7 @@ include terminology that we want to use for all PA/FSP memos:
 
 FR PK doc: 
 
-- HCR plots from ppt (Aug2022)
+- ***ADD HCR plots from ppt (Aug2022)***
 
 # Data summary & plots  
 - descriptive plots of data used in analysis to show quantity of data available
@@ -68,7 +91,9 @@ FR PK doc:
 - data tables go in appendix
 
 FR PK doc:
-
+```{}
+#how tf do I read a plotly fig from one .Rmd into another?
+```
 - raw escapement & harvest boxplots (3.1)
 - table of escapement assessment methods (3.1)
 
