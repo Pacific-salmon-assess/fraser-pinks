@@ -44,7 +44,8 @@ knitr::opts_chunk$set(echo = FALSE,
                       cache = FALSE, 
                       include = TRUE,
                       dpi=300,
-                      fig.align = "center")
+                      fig.align = "center",
+                      fig.path = "figures/")
 library(rstan)
 library(tidyverse)
 library(kableExtra)
