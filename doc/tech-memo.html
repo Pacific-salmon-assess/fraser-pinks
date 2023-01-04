@@ -1578,23 +1578,17 @@ overflow-y: auto;
 border: 1px solid #ddd;
 border-radius: 4px;
 }
-.tabset-dropdown > .nav-tabs > li.active:before {
-content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+content: "\e259";
 font-family: 'Glyphicons Halflings';
 display: inline-block;
 padding: 10px;
 border-right: 1px solid #ddd;
 }
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-content: "";
-border: none;
-}
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-content: "";
+content: "\e258";
 font-family: 'Glyphicons Halflings';
-display: inline-block;
-padding: 10px;
-border-right: 1px solid #ddd;
+border: none;
 }
 .tabset-dropdown > .nav-tabs > li.active {
 display: block;
@@ -1719,60 +1713,60 @@ analysis</em></li>
 <table class="table table-hover" style="margin-left: auto; margin-right: auto;">
 <tbody>
 <tr>
-<td style="text-align:center;">
+<td style="text-align:left;">
 SMU
 </td>
-<td style="text-align:center;">
+<td style="text-align:left;">
 Fraser Pink Salmon
 </td>
 </tr>
 <tr>
-<td style="text-align:center;">
-biological benchmark
+<td style="text-align:left;">
+biological reference point
 </td>
-<td style="text-align:center;">
-80% Smsy
+<td style="text-align:left;">
+<em>(Sgen with CI range)</em>
 </td>
 </tr>
 <tr>
-<td style="text-align:center;">
+<td style="text-align:left;">
 advice for joint science
 </td>
-<td style="text-align:center;">
-fish them??
+<td style="text-align:left;">
+removal reference: Umsy; X%Umsy; <em>(insert values with range)</em>
 </td>
 </tr>
 <tr>
-<td style="text-align:center;">
-other biological benchmarks to consider
+<td style="text-align:left;">
+other biological reference points to consider
 </td>
-<td style="text-align:center;">
-Smsy in context of changing demographics (e.g. lower body mass, lower
-fecundity)
+<td style="text-align:left;">
+values which may be useful for determining management reference points
+(ex., Smsy, X%Smsy, percentile based values)
 </td>
 </tr>
 <tr>
-<td style="text-align:center;">
+<td style="text-align:left;">
 next year of re-evaluation
 </td>
-<td style="text-align:center;">
-2025
+<td style="text-align:left;">
+<em>(insert year here)</em>
 </td>
 </tr>
 <tr>
-<td style="text-align:center;">
+<td style="text-align:left;">
 recommended approach if points are NOT re-evaluated within timeframe
 </td>
-<td style="text-align:center;">
-figure it out!
+<td style="text-align:left;">
+TBD
 </td>
 </tr>
 <tr>
-<td style="text-align:center;">
+<td style="text-align:left;">
 reccomended threshold to trigger a rebuilding plan
 </td>
-<td style="text-align:center;">
-in bottom right quadrant of kobe plot
+<td style="text-align:left;">
+TBD <em>(include measurement units &amp; frequency)</em>
 </td>
 </tr>
 </tbody>
@@ -1785,13 +1779,12 @@ into each PA/FSP memo re: purpose of memo, what it is/is not. PA
 components that Science is directly responsible for, jointly responsible
 for, and provides support to Fisheries Management for.</em></p>
 <p><em>If helpful, could (generically) include what some biological
-benchmarks are (e.g. 80% Smsy, Umsy, etc.) and why they may be
-considered / informative when determining management reference
-points</em></p>
+refpts are (e.g. 80% Smsy, Umsy, etc.) and why they may be considered /
+informative when determining management reference points</em></p>
 <p>include terminology that we want to use for all PA/FSP memos:</p>
 <ul>
-<li>biological benchmarks</li>
-<li>biological reference points (?)</li>
+<li>biological reference points (which can include WSP biological
+benchmarks)</li>
 <li>management reference points</li>
 <li>etc.</li>
 </ul>
@@ -1801,8 +1794,15 @@ points</em></p>
 <ul>
 <li>stock aggregation units/structure - i.e. how does CU, MU &amp; SMU
 relate for this group?</li>
-<li>are there any previous estimates of PA components? if yes: what are
-they and when were they estimated?</li>
+<li>are there any previous estimates of biological reference points? if
+yes: what are they and when were they estimated?</li>
+<li>include any relevant ecological info, e.g.:
+<ul>
+<li>age structure</li>
+<li>migration, spawn timing</li>
+<li>distribution</li>
+<li>etc…incl. any trends</li>
+</ul></li>
 </ul>
 </div>
 <div id="harvest-control-rule" class="section level1" number="4">
@@ -1815,7 +1815,7 @@ useful for comparative purposes to biological benchmarks)</li>
 </ul>
 <p>FR PK doc:</p>
 <ul>
-<li>HCR plots from ppt (Aug2022)</li>
+<li><strong><em>ADD HCR plots from ppt (Aug2022)</em></strong></li>
 </ul>
 </div>
 <div id="data-summary-plots" class="section level1" number="5">
@@ -1829,6 +1829,7 @@ in this section, as well</li>
 <li>data tables go in appendix</li>
 </ul>
 <p>FR PK doc:</p>
+<pre><code>#how tf do I read a plotly fig from one .Rmd into another? amh: no idea. good luck!</code></pre>
 <ul>
 <li>raw escapement &amp; harvest boxplots (3.1)</li>
 <li>table of escapement assessment methods (3.1)</li>
@@ -1869,21 +1870,29 @@ control rules, etc.), risk tables/plots/profiles, sensitivity
 analyses…</em></p>
 <p>FR PK doc:</p>
 <ul>
+<li>Kobe plot (4)
+<ul>
+<li>Q for group: axes –&gt; currently shows using S/Smsy, but one
+potential mgmt refpt = 80%Smsy (see lighter dotted line); would color
+coding help? (e.g. red vs green quadrants)</li>
+</ul></li>
 <li>Sgen &amp; 80%Smsy vs SPN (3.3)</li>
 <li>HR vs Umsy (3.3)</li>
 <li>expected yield &amp; recruitment profiles (3.4)</li>
-<li>Kobe plot (4)</li>
 </ul>
 </div>
 </div>
-<div id="sources-of-uncertainty-time-varying-considerations" class="section level1" number="8">
-<h1><span class="header-section-number">8</span> Sources of Uncertainty
-/ Time-Varying Considerations</h1>
-<p><em>Q: do we need “sources of uncertainty” here, given above section
-re: risk context? OR maybe change this explicitly to a section talking
-about whether time-varying benchmarks should be given consideration?
-Climate change considerations, etc.</em></p>
-<p>include in this section:</p>
+<div id="additional-considerations" class="section level1" number="8">
+<h1><span class="header-section-number">8</span> Additional
+Considerations</h1>
+<p><em>Are there things that Fisheries Management should consider or
+should know about the results in this memo when developing management
+benchmarks?</em></p>
+<p>general things to include in this section: - sources of uncertainty -
+time varying considerations - changing demographics - anticipated
+climate change impacts - changes in habitat (past &amp; future) -
+migration impediments</p>
+<p>specific things to include in this section:</p>
 <ul>
 <li>recommended timeframe for next evaluation of reference points &amp;
 benchmarks</li>
@@ -1901,22 +1910,15 @@ recommendation</li>
 <li>recruitment resids (3.2)</li>
 </ul>
 </div>
-<div id="other-considerations" class="section level1" number="9">
-<h1><span class="header-section-number">9</span> Other
-considerations</h1>
-<p><em>Are there other things that Fisheries Management should consider
-or should know about the results in this memo when developing management
-benchmarks?</em></p>
-</div>
-<div id="data-sources-and-acknowledgements" class="section level1" number="10">
-<h1><span class="header-section-number">10</span> Data Sources and
+<div id="data-sources-and-acknowledgements" class="section level1" number="9">
+<h1><span class="header-section-number">9</span> Data Sources and
 Acknowledgements</h1>
 <p><em>Data collection, quality control, management, etc. that the
 analysis relied upon. Include dates (year) when data set used was
 received and/or last updated.</em></p>
 </div>
-<div id="appendices" class="section level1" number="11">
-<h1><span class="header-section-number">11</span> Appendices</h1>
+<div id="appendices" class="section level1" number="10">
+<h1><span class="header-section-number">10</span> Appendices</h1>
 <p><em>technical information that is not directly needed for management
 purposes, but provides additional information about the results, is
 necessary for documentation of the analysis and/or to allow for future

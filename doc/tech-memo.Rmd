@@ -39,43 +39,46 @@ knitr::opts_chunk$set(echo = FALSE,
 
 ```{r summary-table}
 summary_df <- data.frame(attribute = c("SMU",
-                                       "biological benchmark",
+                                       "biological reference point",
                                        "advice for joint science",
-                                       "other biological benchmarks to consider",
+                                       "other biological reference points to consider",
                                        "next year of re-evaluation",
                                        "recommended approach if points are NOT re-evaluated 
                                        within timeframe",
                                        "reccomended threshold to trigger a rebuilding plan"),
                          data = c("Fraser Pink Salmon",
-                                  "80% Smsy",
-                                  "fish them??",
-                                  "Smsy in context of changing demographics (e.g. lower body 
-                                  mass, lower fecundity)",
-                                  "2025",
-                                  "figure it out!",
-                                  "in bottom right quadrant of kobe plot"))
+                                  "*(Sgen with CI range)*",
+                                  "removal reference: Umsy; X%Umsy; *(insert values with range)* ",
+                                  "values which may be useful for determining management reference points (ex., Smsy, X%Smsy, percentile based values)",
+                                  "*(insert year here)*",
+                                  "TBD",
+                                  "TBD *(include measurement units & frequency)* "))
 
 kbl(summary_df, 
       col.names = NULL, 
-      align = "c") |>
+      align = "l") |>
   kable_styling(bootstrap_options = "hover")
 ```
 
 # Background  
 *Suggest some mostly generic language that can be cut & pasted into each PA/FSP memo re: purpose of memo, what it is/is not. PA components that Science is directly responsible for,  jointly responsible for, and provides support to Fisheries Management for.*
 
-*If helpful, could (generically) include what some biological benchmarks are (e.g. 80% Smsy, Umsy, etc.) and why they may be considered / informative when determining management reference points*
+*If helpful, could (generically) include what some biological refpts are (e.g. 80% Smsy, Umsy, etc.) and why they may be considered / informative when determining management reference points*
 
 include terminology that we want to use for all PA/FSP memos: 
 
-- biological benchmarks
-- biological reference points (?)
+- biological reference points (which can include WSP biological benchmarks)
 - management reference points
 - etc.
 
 # Biological Context  
 - stock aggregation units/structure - i.e. how does CU, MU & SMU relate for this group?
-- are there any previous estimates of PA components? if yes: what are they and when were they estimated?
+- are there any previous estimates of biological reference points? if yes: what are they and when were they estimated?
+- include any relevant ecological info, e.g.:
+  - age structure
+  - migration, spawn timing
+  - distribution
+  - etc...incl. any trends
 
 # Harvest Control Rule  
 - description / diagram of current HCR
@@ -92,7 +95,7 @@ FR PK doc:
 
 FR PK doc:
 ```{}
-#how tf do I read a plotly fig from one .Rmd into another?
+#how tf do I read a plotly fig from one .Rmd into another? amh: no idea. good luck!
 ```
 - raw escapement & harvest boxplots (3.1)
 - table of escapement assessment methods (3.1)
@@ -115,30 +118,36 @@ FR PK doc:
 
 FR PK doc:
 
+- Kobe plot (4)
+  - Q for group: axes --> currently shows using S/Smsy, but one potential mgmt refpt = 80%Smsy (see lighter dotted line); would color coding help? (e.g. red vs green quadrants)
 - Sgen & 80%Smsy vs SPN (3.3)
 - HR vs Umsy (3.3)
 - expected yield & recruitment profiles (3.4)
-- Kobe plot (4)
 
-# Sources of Uncertainty  / Time-Varying Considerations
-*Q: do we need "sources of uncertainty" here, given above section re: risk context? OR maybe change this explicitly to a section talking about whether time-varying benchmarks should be given consideration? Climate change considerations, etc.*
 
-include in this section:
+# Additional Considerations
+*Are there things that Fisheries Management should consider or should know about the results in this memo when developing management benchmarks?*
+
+general things to include in this section:
+- sources of uncertainty
+- time varying considerations
+- changing demographics
+- anticipated climate change impacts
+- changes in habitat (past & future)
+- migration impediments
+
+specific things to include in this section:
 
 * recommended timeframe for next evaluation of reference points & benchmarks
 * rationale for that timeframe
 * recommendation for what to use if re-evaluation does not take place within the recommended timeframe & why
 * recommendation for what would trigger a rebuilding plan: how many year(s) of what units/metric (individual years vs running average vs ...) being below LRP would trigger a rebuilding plan, and rationale for recommendation 
 
-
 FR PK doc (time-varying):
 
 - SR plot, color coded to time (3.2)
 - recruitment resids (3.2)
 
-
-# Other considerations
-*Are there other things that Fisheries Management should consider or should know about the results in this memo when developing management benchmarks?*
 
 # Data Sources and Acknowledgements
 *Data collection, quality control, management, etc. that the analysis relied upon. Include dates (year) when data set used was received and/or last updated.*
