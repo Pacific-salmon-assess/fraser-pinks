@@ -14,19 +14,24 @@ output:
 ---
 
 ```{r setup, include=FALSE}
+library(rstan)
 library(tidyverse)
 library(kableExtra)
-library(here)
+library(gsl)
+library(ggpubr)
+library(viridis)
+library(plotly)
 
 knitr::opts_chunk$set(echo = FALSE, 
                       warning = FALSE, 
                       message = FALSE)
+options(scipen=1, digits=4)
 
-#trying to source .Rmd but both are broken
-#source(here("doc/fraser-pinks.Rmd"))
-#rmarkdown::render(input = here("doc/fraser-pinks.Rmd"))
-
-
+# Read in data and posterior samples
+data <- read.csv("../data/fr_pk_spw_har.csv")
+stan.fit <- readRDS("../analysis/output/SS-SR_AR1.stan.fit.rds")
+stan.data <- readRDS("../analysis/output/SS-SR_AR1.stan.data.rds")
+model_pars <- rstan::extract(stan.fit)
 ```
 
 
@@ -57,7 +62,7 @@ summary_df <- data.frame(attribute = c("SMU",
 kbl(summary_df, 
       col.names = NULL, 
       align = "l") |>
-  kable_styling(bootstrap_options = "hover")
+  kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
 # Background  
@@ -93,12 +98,25 @@ FR PK doc:
 - any description/caveats re: data quality would be useful to include in this section, as well
 - data tables go in appendix
 
-FR PK doc:
-```{}
-#how tf do I read a plotly fig from one .Rmd into another? amh: no idea. good luck!
+```{r esc har}
+escape_harvest <- gather(data[,1:3], type, count, harvest:spawn, factor_key=TRUE) |>
+  mutate(count_million = round(count/1000000, 2))
+
+ggplot(escape_harvest, aes(fill=type, y=count_million, x=year)) + 
+  geom_bar(position="stack", stat="identity") +
+  scale_fill_brewer(palette="Dark2",name = "Return type") +
+  xlab("Year") +
+  ylab("Total return (millions of fish)") +
+  theme_bw()
 ```
-- raw escapement & harvest boxplots (3.1)
-- table of escapement assessment methods (3.1)
+```{r spawner estimation methods}
+df <- data.frame(Years = c("1957-1985 ", "1987-1991", "1993-2001", "2003-2007", "2009-2011", "2013-2021"),
+                 Method = c("PSC mark-recapture (system specific)", "DFO mark-recapture (system specific)", "DFO mark-recapture (mainstem)", "Test fishery", "Mission post-season", "Mission in-season"),
+                 CV = c("20%", "20%", "20%", "50%", "35%", "35%"))
+
+kable(df, align="l") |>#digits=c(1) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
 
 # Methods - summary  
 *short, general audience description of methods and how uncertainty was incorporated (or not). Put details that are required for scientific documentation in appendix*
@@ -109,21 +127,247 @@ FR PK doc:
 ## Part A: benchmark/reference point values
 *table(s) of benchmark values and uncertainty range: for both those that Science is responsible / co-responsible for as well as benchmarks that could help FAM determine management reference points* 
 
-FR PK doc:
+```{r SR data wrangle}
+max_samples <- dim(model_pars$lnalpha)
 
-- table of benchmarks & CIs (3.3)
+spwn <- exp(model_pars$lnS)
+spwn.quant <- apply(spwn, 2, quantile, probs=c(0.05,0.5,0.95))[,1:31]
+
+rec <-exp(model_pars$lnR)
+rec.quant <- apply(rec, 2, quantile, probs=c(0.05,0.5,0.95))[,2:32]
+
+brood_t <- as.data.frame(cbind(data$year[1:31],t(spwn.quant), t(rec.quant)))
+colnames(brood_t) <- c("BroodYear","S_lwr","S_med","S_upr","R_lwr","R_med","R_upr")
+
+brood_t <- as.data.frame(brood_t) |>
+  round(2)
+
+# SR relationship
+spw <- seq(0,max(brood_t[,4]),length.out=100)
+SR_pred <- matrix(NA,100,max_samples)
+
+for(i in 1:max_samples){
+  r <- sample(seq(1,max_samples),1,replace=T)
+  a <- model_pars$lnalpha[r]
+  b <- model_pars$beta[r]
+  SR_pred[,i] <- (exp(a)*spw*exp(-b*spw))
+}
+
+SR_pred <- cbind(spw,t(apply(SR_pred,c(1),quantile,probs=c(0.05,0.5,0.95),na.rm=T)))
+colnames(SR_pred) <- c("Spawn", "Rec_lwr","Rec_med","Rec_upr")
+SR_pred <- as.data.frame(SR_pred) |>
+  round(2)
+
+#create spawner df
+spwn <- model_pars$S
+spwn.quant <- apply(spwn, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))
+
+spwn_df <- as.data.frame(cbind(data$year, t(spwn.quant)))
+colnames(spwn_df) <- c("year","lwr","midlwr","mid","midupper","upper")
+
+#create escapement df
+er <- model_pars$U
+er.quant <- apply(er, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))
+
+er_df <- as.data.frame(cbind(data$year, t(er.quant)))
+colnames(er_df) <- c("year","lwr","midlwr","mid","midupper","upper")
+
+#get yield profiles 
+spw <- seq(0,max(brood_t[,4]),length.out=100)
+Profiles <- array(NA, dim = c(length(spw),max_samples,9))
+for(i in 1:max_samples){
+  r <- sample(seq(1,1000),1,replace=T)
+  a <- model_pars$lnalpha[r]
+  b <- model_pars$beta[r]
+  R_pred <- spw*exp(a)*exp(-b*spw)
+  R_pred[which(!is.finite(R_pred))] <- 0
+  pred_spwn <- spw
+  yield <- R_pred-pred_spwn
+  S_msy_c <- (1 - lambert_W0(exp(1 - a))) / b
+  msr_c <- max(R_pred)
+  S_msr_c <- pred_spwn[which.max(R_pred)]
+  msy_c <- max(yield)
+  
+  for(j in 1:length(spw)){
+    spw_star <- spw[j]
+    R_star <- spw_star*exp(a-b*spw_star)
+    if(spw_star==0){R_star<-0; spw_star<-0}
+    sus_yield <- R_star - spw_star
+    U <- ifelse(sus_yield/R_star < 0, 1, sus_yield/R_star)
+    Profiles[j,i,1] <- ifelse(sus_yield > 0.9*msy_c, 1, 0) # probability yield > 90% of MSY
+    Profiles[j,i,2] <- ifelse(sus_yield > 0.8*msy_c, 1, 0) # probability yield > 80% of MSY
+    Profiles[j,i,3] <- ifelse(sus_yield > 0.7*msy_c, 1, 0) # probability yield > 70% of MSY
+    Profiles[j,i,4] <- ifelse(R_star > 0.9*msr_c, 1, 0) # probability recruitment > 90% of MSR
+    Profiles[j,i,5] <- ifelse(R_star > 0.8*msr_c, 1, 0) # probability recruitment > 80% of MSR
+    Profiles[j,i,6] <- ifelse(R_star > 0.7*msr_c, 1, 0) # probability recruitment > 70% of MSR
+    if(sus_yield < (0.9*msy_c) & spw_star < S_msy_c){
+      Profiles[j,i,7] <- 1
+    } else {
+      Profiles[j,i,7] <- 0
+      }
+    if(sus_yield < (0.8*msy_c) & spw_star < S_msy_c){
+      Profiles[j,i,8] <- 1
+    } else {
+      Profiles[j,i,8] <- 0
+      }
+    if(sus_yield < (0.7*msy_c) & spw_star < S_msy_c){
+      Profiles[j,i,9] <- 1
+    } else {
+      Profiles[j,i,9] <- 0
+      }    
+        }
+}
+profiles_median <- cbind(spw,apply(Profiles,c(1,3),mean, na.rm=T))
+colnames(profiles_median) <- c("Spawners","90% MSY","80% MSY","70% MSY", "90% MSR","80% MSR","70% MSR", "90% MSY ", "80% MSY ", "70% MSY ")
+profiles_median <- as.data.frame(profiles_median)
+long_yield_profiles <- profiles_median%>%
+  select("Spawners","90% MSY","80% MSY","70% MSY")%>%
+  pivot_longer(!Spawners, names_to = "Objective", values_to = "perc")
+
+```
+
+```{r benchmarks}
+# Sgen function
+get_Sgen <- function(a, b, int_lower, int_upper, SMSY) {
+  fun_Sgen <- function(Sgen, a, b, SMSY) {Sgen * a * exp(-b * Sgen) - SMSY}
+  Sgen <- uniroot(fun_Sgen, interval=c(int_lower, int_upper), a=a, b=b, SMSY=SMSY)$root
+}
+
+# Benchmarks
+bench <- matrix(NA,1000,3,
+                dimnames = list(seq(1:1000), c("sgen","smsy","umsy")))
+
+for(i in 1:1000){
+  r <- sample(seq(1,1000),1,replace=T)
+  a <- model_pars$lnalpha[r]
+  b <- model_pars$beta[r]
+  bench[i,2] <- (1 - lambert_W0(exp(1 - a))) / b # smsy
+  bench[i,1] <- get_Sgen(exp(a),b,-1,1/b*2,bench[i,2]) # sgen
+  bench[i,3] <- (1 - lambert_W0(exp(1 - a)))# umsy
+}
+  
+bench[,2] <- bench[,2]*0.8
+bench.quant <- apply(bench, 2, quantile, probs=c(0.025,0.5,0.975), na.rm=T)
+
+percentiles <- quantile(data$spawn,probs=c(0.25, 0.5))/1000000
+
+benchmarks <- matrix(NA,5,3)
+benchmarks[1,] <- c(bench.quant[2,2],bench.quant[1,2],bench.quant[3,2])
+benchmarks[2,] <- c(bench.quant[2,1],bench.quant[1,1],bench.quant[3,1])
+benchmarks[3,] <- c(bench.quant[2,3],bench.quant[1,3],bench.quant[3,3])
+benchmarks[4,1] <- percentiles[1]
+benchmarks[5,1] <- percentiles[2]
+rownames(benchmarks) <- c("80% Smsy","Sgen","Umsy","25th percentile","50th percentile")
+colnames(benchmarks) <- c("median","lower CI","upper CI")
+
+benchmarks.df <- as.data.frame(benchmarks)
+
+kable(data.frame(benchmarks.df), align="l") |> 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
 
 ## Part B: risk context
 *things that may be helpful for managers as they determine management reference points. e.g., kobe plots, comparison of biological benchmarks to: historical data (spawners, harvest rates, etc.), harvest control rules, etc.), risk tables/plots/profiles, sensitivity analyses...*
 
-FR PK doc:
+```{r kobe-plot, warning = FALSE, out.height='80%', out.width = '80%'}
+kobe_df <- data.frame(S = spwn_df$mid, 
+                      U = er_df$mid, 
+                      year = spwn_df$year) |>
+  mutate(U_Umsy = round(U/benchmarks[3,1] ,2), 
+         S_Smsy = round(S/(benchmarks[1,1]*1.25), 2)) #correct from 80%Smsy to Smsy
 
-- Kobe plot (4)
+p <- ggplot(kobe_df, aes(S_Smsy, U_Umsy)) +
+  geom_vline(xintercept = 1, lty = 2) +
+  geom_vline(xintercept = 0.8, lty = 3) +
+  geom_hline(yintercept = 1, lty = 2) +
+  geom_path() +
+  geom_point(aes(color = year, text = year), size=3) +
+  scale_colour_viridis_c(name="Year") +
+  theme_classic() +
+  labs(y="U/Umsy", x= "S/Smsy")
+
+plotly::ggplotly(p, tooltip = "text") |> 
+  config(displayModeBar = FALSE) 
+```
   - Q for group: axes --> currently shows using S/Smsy, but one potential mgmt refpt = 80%Smsy (see lighter dotted line); would color coding help? (e.g. red vs green quadrants)
-- Sgen & 80%Smsy vs SPN (3.3)
-- HR vs Umsy (3.3)
-- expected yield & recruitment profiles (3.4)
-
+  
+```{r, Sgen 80 perc Msy}
+ggplot(spwn_df, aes(x=year, y = mid), show.legend = FALSE) +
+  geom_ribbon(aes(ymin = benchmarks[1,2], ymax = benchmarks[1,3]), fill = rgb(0.5,0.5,0.5, alpha=0.2)) +
+  geom_segment(aes(x = 1959 , y = benchmarks[1,1], xend = 2021, yend = benchmarks[1,1], legend = FALSE)) +
+  geom_ribbon(aes(ymin = benchmarks[2,2], ymax = benchmarks[2,3]), fill = rgb(0.5,0.5,0.5, alpha=0.2)) +
+  geom_segment(aes(x = 1959 , y = benchmarks[2,1], xend = 2021, yend = benchmarks[2,1], legend = FALSE)) +
+  geom_line(show.legend = F, color = rgb(1,0,0, alpha=0.2), lwd = 1.5) + 
+  geom_ribbon(aes(ymin = lwr, ymax = upper), show.legend = FALSE, fill = rgb(1,0,0, alpha=0.2)) +
+  geom_ribbon(aes(ymin = midlwr, ymax = midupper), show.legend = FALSE, fill = rgb(1,0,0, alpha=0.2)) +
+  xlab("Year") +
+  ylab("Spawner abundance (millions)") +
+  annotate("text", label = " 80% Smsy", x = 1962.5, y = 4.90) +
+  annotate("text", label = "Sgen", x = 1961, y = 2.05) +
+  theme(legend.position = "none") +
+  theme_bw()
+```
+```{r harvest Umsy}
+ggplot(er_df, aes(x=year, y = mid), show.legend = F) +
+  geom_ribbon(aes(ymin = benchmarks[3,2], ymax = benchmarks[3,3]), fill = rgb(0.5,0.5,0.5, alpha=0.2)) +
+  geom_segment(aes(x = 1959 , y = benchmarks[3,1], xend = 2021, yend = benchmarks[3,1], legend = FALSE)) +
+  geom_hline(aes(yintercept = benchmarks[3,3]), colour = 'light grey')+
+  geom_line(show.legend = F, color = rgb(1,0,0, alpha=0.2), lwd = 1.5) + 
+  geom_ribbon(aes(ymin = lwr, ymax = upper), show.legend = F, fill = rgb(1,0,0, alpha=0.2)) +
+  geom_ribbon(aes(ymin = midlwr, ymax = midupper), show.legend = F, fill = rgb(1,0,0, alpha=0.2)) +
+  coord_cartesian(ylim=c(0,1)) +
+  xlab("Year") +
+  ylab("Harvest rate") +
+  annotate("text", label = "Umsy", x = 2018, y = 0.62) +
+  theme(legend.position = "none") +
+  geom_abline(intercept = 0, slope = 0,col="dark grey", lty=2)+
+  theme_bw()
+```
+```{r, yield and recruit profiles}
+a <- ggplot(long_yield_profiles, aes(x = Spawners, y = perc, group = Objective, color = Objective)) +
+  geom_line(size = 1.5) +
+  scale_color_viridis(discrete = TRUE) +
+  xlab("Spawners") +
+  ylab("Probability") +
+  theme(legend.position = "none",
+        panel.grid.minor.x = element_blank()) +
+  theme_bw()  +
+  scale_x_continuous(breaks=seq(0,25,5), limits=c(0,25)) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank()) 
+long_rec_profiles <- profiles_median%>%
+  select("Spawners","90% MSR","80% MSR","70% MSR")%>%
+  pivot_longer(!Spawners, names_to = "Objective", values_to = "perc")
+b <- ggplot(long_rec_profiles, aes(x = Spawners, y = perc, group = Objective, color = Objective)) +
+  geom_line(size = 1.5) +
+  scale_color_viridis(discrete = TRUE) +
+  xlab("Spawners") +
+  ylab("Probability") +
+  theme(legend.position = "none",
+        panel.grid.minor.x = element_blank()) +
+  theme_bw() +
+  scale_x_continuous(breaks=seq(0,25,5), limits=c(0,25)) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank())
+long_overfish_profiles <- profiles_median%>%
+  select("Spawners", "90% MSY ", "80% MSY ", "70% MSY ")%>%
+  pivot_longer(!Spawners, names_to = "Objective", values_to = "perc")
+c <- ggplot(long_overfish_profiles, aes(x = Spawners , y = perc, group = Objective, color = Objective)) +
+  geom_line(size = 1.5) +
+  scale_color_viridis(discrete = TRUE) +
+  xlab("Spawners (millions)") +
+  ylab("Probability ") +
+  theme(legend.position = "none",
+        panel.grid.minor.x = element_blank()) +
+  theme_bw() +
+  scale_x_continuous(breaks=seq(0,25,5), limits=c(0,25))+
+  geom_rug(data = brood_t,
+           aes(x = S_med),
+           inherit.aes = FALSE,
+           sides="b")
+g <- ggarrange(a,b,c,nrow =3, labels = c("a", "b", "c"), heights = c(0.75,0.75,0.9))
+print(g)
+```
 
 # Additional Considerations
 *Are there things that Fisheries Management should consider or should know about the results in this memo when developing management benchmarks?*
@@ -143,10 +387,57 @@ specific things to include in this section:
 * recommendation for what to use if re-evaluation does not take place within the recommended timeframe & why
 * recommendation for what would trigger a rebuilding plan: how many year(s) of what units/metric (individual years vs running average vs ...) being below LRP would trigger a rebuilding plan, and rationale for recommendation 
 
-FR PK doc (time-varying):
+```{r SR plot}
+p <- ggplot() +
+  geom_ribbon(data = SR_pred, aes(x = Spawn, ymin = Rec_lwr, ymax = Rec_upr),
+              fill = "grey80", alpha=0.5, linetype=2, colour="gray46") +
+  geom_line(data = SR_pred, aes(x = Spawn, y = Rec_med), color="black", size = 1) +
+  geom_errorbar(data = brood_t, aes(x= S_med, y = R_med, ymin = R_lwr, ymax = R_upr),
+                colour="grey", width=0, size=0.3) +
+  geom_errorbarh(data = brood_t, aes(x= S_med, y = R_med, xmin = S_lwr, xmax = S_upr),
+                 height=0, colour = "grey", height = 0, size = 0.3) +
+  geom_point(data = brood_t, 
+             aes(x = S_med, 
+                 y = R_med, 
+                 color=BroodYear, 
+                 text= BroodYear, #to pass to hover - can add paste() for context 
+                 width = 0.9), 
+             size = 3)+
+  coord_cartesian(xlim=c(0, 20), ylim=c(0,max(brood_t[,7]))) +
+  scale_colour_viridis_c(name = "Brood Year")+
+  xlab("Spawners (millions)") +
+  ylab("Recruits (millions)") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.key.size = unit(0.4, "cm"),
+        legend.title = element_text(size=9),
+        legend.text = element_text(size=8))+
+  geom_abline(intercept = 0, slope = 1,col="dark grey")
 
-- SR plot, color coded to time (3.2)
-- recruitment resids (3.2)
+plotly::ggplotly(p, tooltip = "text") |>
+  config(displayModeBar = FALSE) 
+```
+
+
+```{r recruitment residuals}
+resid <- model_pars$lnresid
+resid.quant <- apply(resid, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))[,1:31]
+
+resids <- as.data.frame(cbind(data$year[1:31], t(resid.quant)))
+colnames(resids) <- c("year","lwr","midlwr","mid","midupper","upper")
+
+ggplot(resids, aes(x=year, y = mid), show.legend = FALSE) +
+  geom_line(show.legend = FALSE, color = rgb(1,0,0, alpha=0.2), lwd = 1.5) + 
+  geom_ribbon(aes(ymin = lwr, ymax = upper), show.legend = FALSE, fill = rgb(1,0,0, alpha=0.2)) +
+  geom_ribbon(aes(ymin = midlwr, ymax = midupper), show.legend = FALSE, fill = rgb(1,0,0, alpha=0.2)) +
+  coord_cartesian(ylim=c(-2,2)) +
+  xlab("Brood year") +
+  ylab("Recruitment residuals") +
+  theme(legend.position = "none") +
+  geom_abline(intercept = 0, slope = 0, col = "dark grey", lty = 2) +
+  theme_bw()
+```
 
 
 # Data Sources and Acknowledgements
