@@ -44,8 +44,7 @@ knitr::opts_chunk$set(echo = FALSE,
                       cache = FALSE, 
                       include = TRUE,
                       dpi=300,
-                      fig.align = "center",
-                      fig.path = "figures/")
+                      fig.align = "center")
 library(rstan)
 library(tidyverse)
 library(kableExtra)
@@ -365,6 +364,7 @@ profiles_median <- as.data.frame(profiles_median)
 long_yield_profiles <- profiles_median%>%
   select("Spawners","90% MSY","80% MSY","70% MSY")%>%
   pivot_longer(!Spawners, names_to = "Objective", values_to = "perc")
+
 a <- ggplot(long_yield_profiles, aes(x = Spawners, y = perc, group = Objective, color = Objective)) +
   geom_line(size = 1.5) +
   scale_color_viridis(discrete = TRUE) +
