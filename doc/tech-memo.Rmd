@@ -48,16 +48,16 @@ model_pars <- rstan::extract(stan.fit)
 ```{r summary-table}
 summary_df <- data.frame(attribute = c("SMU",
                                        "biological reference point",
-                                       "advice for joint science",
-                                       "other biological reference points to consider",
+                                       "joint science-FAM advice",
+                                       "other biological reference points to inform management reference points",
                                        "next year of re-evaluation",
                                        "recommended approach if points are NOT re-evaluated 
                                        within timeframe",
                                        "reccomended threshold to trigger a rebuilding plan"),
                          data = c("Fraser Pink Salmon",
                                   "*(Sgen with CI range)*",
-                                  "removal reference: Umsy; X%Umsy; *(insert values with range)* ",
-                                  "values which may be useful for determining management reference points (ex., Smsy, X%Smsy, percentile based values)",
+                                  "removal reference: e.g., Umsy; X%Umsy; *(insert values with range)* ",
+                                  "values which may be useful for determining management reference points (e.g., Smsy, X%Smsy, percentile based values)",
                                   "*(insert year here)*",
                                   "TBD",
                                   "TBD *(include measurement units & frequency)* "))
@@ -77,6 +77,7 @@ include terminology that we want to use for all PA/FSP memos:
 
 - biological reference points (which can include WSP biological benchmarks)
 - management reference points
+- *Q: Harvest Decision Rule vs Harvest Control Rule??? (have kept as HCRs in this version, can change if that's the new terminology)*
 - etc.
 
 # Biological Context  
@@ -91,6 +92,7 @@ include terminology that we want to use for all PA/FSP memos:
 # Harvest Control Rule  
 - description / diagram of current HCR
 - ID any "implied" management values that come from the HCR (will be useful for comparative purposes to biological benchmarks)
+- work with FAM / FAM to provide short summary of ancillary mgmt pieces - e.g., time, area, effort control that works with the HCR 
 
 FR PK doc: 
 
@@ -127,8 +129,10 @@ kable(df, align="l") |>#digits=c(1) %>%
 # Results for PA/FSP implementation 
 *focus in this section is on results that determine the reference points that Science Branch is responsible / jointly responsible for and biological reference points that managers may want to consider when making decisions re: implementation of PA/FSP reference points*
 
-## Part A: benchmark/reference point values
-*table(s) of benchmark values and uncertainty range: for both those that Science is responsible / co-responsible for as well as benchmarks that could help FAM determine management reference points* 
+## Part A: biological reference point values
+*table(s) of benchmark values and uncertainty range: for both those that Science is responsible / co-responsible for as well as benchmarks that could help FAM determine management reference points.*
+
+This will be provided at both SMU & CU level (when they are not a 1:1 relationship)
 
 ```{r SR data wrangle}
 max_samples <- dim(model_pars$lnalpha)
@@ -376,6 +380,7 @@ print(g)
 *Are there things that Fisheries Management should consider or should know about the results in this memo when developing management benchmarks?*
 
 general things to include in this section:
+
 - sources of uncertainty
 - time varying considerations
 - changing demographics
