@@ -56,7 +56,7 @@ summary_df <- data.frame(attribute = c("SMU",
                                        "reccomended threshold to trigger a rebuilding plan"),
                          data = c("Fraser Pink Salmon",
                                   "*(Sgen with CI range)*",
-                                  "removal reference: e.g., Umsy; X%Umsy; *(insert values with range)* ",
+                                  "removal reference: e.g., Umsy; X% Umsy; *(insert values with range)* ",
                                   "values which may be useful for determining management reference points (e.g., Smsy, X%Smsy, percentile based values)",
                                   "*(insert year here)*",
                                   "TBD",
@@ -64,7 +64,8 @@ summary_df <- data.frame(attribute = c("SMU",
 
 kbl(summary_df, 
       col.names = NULL, 
-      align = "l") |>
+      align = "l", 
+    caption = "Example of key summary information for a given stock") |>
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
@@ -103,7 +104,7 @@ FR PK doc:
 - any description/caveats re: data quality would be useful to include in this section, as well
 - data tables go in appendix
 
-```{r esc har}
+```{r esc har, out.height='80%', out.width = '80%', fig.cap= "Total run for Fraser Pink Salmon during the monitoring period"}
 escape_harvest <- gather(data[,1:3], type, count, harvest:spawn, factor_key=TRUE) |>
   mutate(count_million = round(count/1000000, 2))
 
@@ -114,12 +115,15 @@ ggplot(escape_harvest, aes(fill=type, y=count_million, x=year)) +
   ylab("Total return (millions of fish)") +
   theme_bw()
 ```
+
 ```{r spawner estimation methods}
 df <- data.frame(Years = c("1957-1985 ", "1987-1991", "1993-2001", "2003-2007", "2009-2011", "2013-2021"),
                  Method = c("PSC mark-recapture (system specific)", "DFO mark-recapture (system specific)", "DFO mark-recapture (mainstem)", "Test fishery", "Mission post-season", "Mission in-season"),
                  CV = c("20%", "20%", "20%", "50%", "35%", "35%"))
 
-kable(df, align="l") |>#digits=c(1) %>%
+kable(df, 
+      align="l",
+      caption = "Sampling stanzas and observation error CVs used in state-space model") |>
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
@@ -130,7 +134,6 @@ kable(df, align="l") |>#digits=c(1) %>%
 *focus in this section is on results that determine the reference points that Science Branch is responsible / jointly responsible for and biological reference points that managers may want to consider when making decisions re: implementation of PA/FSP reference points*
 
 ## Part A: biological reference point values
-*table(s) of benchmark values and uncertainty range: for both those that Science is responsible / co-responsible for as well as benchmarks that could help FAM determine management reference points.*
 
 This will be provided at both SMU & CU level (when they are not a 1:1 relationship)
 
@@ -227,8 +230,9 @@ for(i in 1:max_samples){
 profiles_median <- cbind(spw,apply(Profiles,c(1,3),mean, na.rm=T))
 colnames(profiles_median) <- c("Spawners","90% MSY","80% MSY","70% MSY", "90% MSR","80% MSR","70% MSR", "90% MSY ", "80% MSY ", "70% MSY ")
 profiles_median <- as.data.frame(profiles_median)
-long_yield_profiles <- profiles_median%>%
-  select("Spawners","90% MSY","80% MSY","70% MSY")%>%
+
+long_yield_profiles <- profiles_median %>%
+  select("Spawners","90% MSY","80% MSY","70% MSY") %>%
   pivot_longer(!Spawners, names_to = "Objective", values_to = "perc")
 
 ```
@@ -269,14 +273,16 @@ colnames(benchmarks) <- c("median","lower CI","upper CI")
 
 benchmarks.df <- as.data.frame(benchmarks)
 
-kable(data.frame(benchmarks.df), align="l") |> 
+kable(data.frame(benchmarks.df), 
+      align="l",
+      caption = "Table(s) of benchmark values and uncertainty range: for both those that Science is responsible / co-responsible for as well as benchmarks that could help FAM determine management reference points") |> 
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
 ## Part B: risk context
 *things that may be helpful for managers as they determine management reference points. e.g., kobe plots, comparison of biological benchmarks to: historical data (spawners, harvest rates, etc.), harvest control rules, etc.), risk tables/plots/profiles, sensitivity analyses...*
 
-```{r kobe-plot, warning = FALSE, out.height='80%', out.width = '80%'}
+```{r kobe-plot, out.height='80%', out.width = '80%', fig.cap= "Kobe plot showing risk relative to Smsy and Umsy"}
 kobe_df <- data.frame(S = spwn_df$mid, 
                       U = er_df$mid, 
                       year = spwn_df$year) |>
@@ -291,6 +297,7 @@ p <- ggplot(kobe_df, aes(S_Smsy, U_Umsy)) +
   geom_point(aes(color = year, text = year), size=3) +
   scale_colour_viridis_c(name="Year") +
   theme_classic() +
+  theme(legend.position = "bottom") + #hack to functionally align plots
   labs(y="U/Umsy", x= "S/Smsy")
 
 plotly::ggplotly(p, tooltip = "text") |> 
@@ -298,7 +305,7 @@ plotly::ggplotly(p, tooltip = "text") |>
 ```
   - Q for group: axes --> currently shows using S/Smsy, but one potential mgmt refpt = 80%Smsy (see lighter dotted line); would color coding help? (e.g. red vs green quadrants)
   
-```{r, Sgen 80 perc Msy, out.width = "75%"}
+```{r Sgen 80 perc Msy, out.width = "75%", fig.cap = "Spawner abundance relative to Smsy with ribbon shading representing 50 and 95% quantiles"}
 ggplot(spwn_df, aes(x=year, y = mid), show.legend = FALSE) +
   geom_ribbon(aes(ymin = benchmarks[1,2], ymax = benchmarks[1,3]), fill = rgb(0.5,0.5,0.5, alpha=0.2)) +
   geom_segment(aes(x = 1959 , y = benchmarks[1,1], xend = 2021, yend = benchmarks[1,1], legend = FALSE)) +
@@ -314,7 +321,8 @@ ggplot(spwn_df, aes(x=year, y = mid), show.legend = FALSE) +
   theme(legend.position = "none") +
   theme_bw()
 ```
-```{r harvest Umsy, out.width = "75%"}
+
+```{r harvest Umsy, out.width = "75%", fig.cap = "Harvest rate and Umsy with ribbon shading representing 50 and 95% quantiles"}
 ggplot(er_df, aes(x=year, y = mid), show.legend = F) +
   geom_ribbon(aes(ymin = benchmarks[3,2], ymax = benchmarks[3,3]), fill = rgb(0.5,0.5,0.5, alpha=0.2)) +
   geom_segment(aes(x = 1959 , y = benchmarks[3,1], xend = 2021, yend = benchmarks[3,1], legend = FALSE)) +
@@ -330,7 +338,8 @@ ggplot(er_df, aes(x=year, y = mid), show.legend = F) +
   geom_abline(intercept = 0, slope = 0,col="dark grey", lty=2)+
   theme_bw()
 ```
-```{r, yield and recruit profiles, out.width = "85%"}
+
+```{r yield and recruit profiles, out.width = "85%", fig.cap = "Yield and recruit profiles"}
 a <- ggplot(long_yield_profiles, aes(x = Spawners, y = perc, group = Objective, color = Objective)) +
   geom_line(size = 1.5) +
   scale_color_viridis(discrete = TRUE) +
@@ -395,7 +404,7 @@ specific things to include in this section:
 * recommendation for what to use if re-evaluation does not take place within the recommended timeframe & why
 * recommendation for what would trigger a rebuilding plan: how many year(s) of what units/metric (individual years vs running average vs ...) being below LRP would trigger a rebuilding plan, and rationale for recommendation 
 
-```{r SR plot, out.height='80%', out.width='90%'}
+```{r SR plot, out.height='80%', out.width='90%', fig.cap = "Spawner-Recruit relationship. The grey shaded area are the 90% confidince intervals, and the errorbars on points are 95% confidince intervals."}
 p <- ggplot() +
   geom_ribbon(data = SR_pred, aes(x = Spawn, ymin = Rec_lwr, ymax = Rec_upr),
               fill = "grey80", alpha=0.5, linetype=2, colour="gray46") +
@@ -416,7 +425,8 @@ p <- ggplot() +
   xlab("Spawners (millions)") +
   ylab("Recruits (millions)") +
   theme_bw() +
-  theme(panel.grid.major = element_blank(),
+  theme(#legend.position = "bottom",  #broken?
+        panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         legend.key.size = unit(0.4, "cm"),
         legend.title = element_text(size=9),
@@ -428,7 +438,7 @@ plotly::ggplotly(p, tooltip = "text") |>
 ```
 
 
-```{r recruitment residuals, out.width = "75%"}
+```{r recruitment residuals, out.width = "75%", fig.cap = "Recruitment resisuals highlighting years of high/low productivity with ribbon shading representing 50 and 95% quantiles."}
 resid <- model_pars$lnresid
 resid.quant <- apply(resid, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))[,1:31]
 
