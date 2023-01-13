@@ -1,5 +1,7 @@
 # fraser-pinks
-Fraser River pink salmon spawner recruitment analysis with state-space model to account for time varying observation error in estimates of spawning escapement and harvest. Ultimate goal of analysis is to derive biological benchmarks to inform a Limit Reference Point for the Stock Management Unit and associated harvest control rule. The current working document is available [here](https://pacific-salmon-assess.github.io/fraser-pinks/doc/fraser-pinks.html), with a draft technical memo [here](https://pacific-salmon-assess.github.io/fraser-pinks/doc/tech-memo.html).   
+Fraser River pink salmon spawner recruitment analysis with state-space model to account for time varying observation error in estimates of spawning escapement and harvest. The ultimate goal of analysis is to derive biological benchmarks to inform a Limit Reference Point for the Stock Management Unit and associated harvest control rule. The current working document is available [here](https://pacific-salmon-assess.github.io/fraser-pinks/doc/tech-memo.html).
+
+If you wish to tinker with this analysis, begin by cloning the repo then run [fit-sr-stan.R](https://github.com/Pacific-salmon-assess/fraser-pinks/blob/main/analysis/fit-sr-stan.R) to generate model outputs befor knitting the [tech-memo document](https://github.com/Pacific-salmon-assess/fraser-pinks/blob/main/doc/tech-memo.Rmd).  
 
 ## Folders and files
 - `reproduce.R`: source to load required libraries and reproduce analysis
