@@ -21,6 +21,7 @@ library(gsl)
 library(ggpubr)
 library(viridis)
 library(plotly)
+library(here)
 
 knitr::opts_chunk$set(echo = FALSE, 
                       warning = FALSE, 
@@ -31,9 +32,9 @@ knitr::opts_chunk$set(echo = FALSE,
 options(scipen=1, digits=4)
 
 # Read in data and posterior samples
-data <- read.csv("../data/fr_pk_spw_har.csv")
-stan.fit <- readRDS("../analysis/output/SS-SR_AR1.stan.fit.rds")
-stan.data <- readRDS("../analysis/output/SS-SR_AR1.stan.data.rds")
+data <- read.csv(here("data/fr_pk_spw_har.csv"))
+stan.fit <- readRDS(here("analysis/output/SS-SR_AR1.stan.fit.rds"))
+stan.data <- readRDS(here("analysis/output/SS-SR_AR1.stan.data.rds"))
 model_pars <- rstan::extract(stan.fit)
 ```
 
