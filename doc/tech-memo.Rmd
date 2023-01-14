@@ -33,9 +33,35 @@ options(scipen=1, digits=4)
 
 # Read in data and posterior samples
 data <- read.csv(here("data/fr_pk_spw_har.csv"))
+hcr <- read.csv(here("data/hcr.csv")) 
+
 stan.fit <- readRDS(here("analysis/output/SS-SR_AR1.stan.fit.rds"))
 stan.data <- readRDS(here("analysis/output/SS-SR_AR1.stan.data.rds"))
 model_pars <- rstan::extract(stan.fit)
+
+theme_sleek <- function(base_size = 11, base_family = "") {
+  half_line <- base_size/2
+  theme_light(base_size = base_size, base_family = base_family) +
+    theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.ticks.length = unit(half_line / 2.2, "pt"),
+      strip.background = element_rect(fill = NA, colour = NA),
+      strip.text.x = element_text(colour = "grey30"),
+      strip.text.y = element_text(colour = "grey30"),
+      axis.text = element_text(colour = "grey30"),
+      axis.title = element_text(colour = "grey30"),
+      legend.title = element_text(colour = "grey30", size = rel(0.9)),
+      panel.border = element_rect(fill = NA, colour = "grey70", size = 1),
+      legend.key.size = unit(0.9, "lines"),
+      legend.text = element_text(size = rel(0.7), colour = "grey30"),
+      legend.key = element_rect(colour = NA, fill = NA),
+      legend.background = element_rect(colour = NA, fill = NA),
+      plot.title = element_text(colour = "grey30", size = rel(1)),
+      plot.subtitle = element_text(colour = "grey30", size = rel(.85))
+    )
+}
+
 ```
 
 
@@ -96,22 +122,62 @@ include terminology that we want to use for all PA/FSP memos:
 - ID any "implied" management values that come from the HCR (will be useful for comparative purposes to biological benchmarks)
 - work with FAM / FAM to provide short summary of ancillary mgmt pieces - e.g., time, area, effort control that works with the HCR 
 
-FR PK doc: 
+```{r hcr, out.height='80%', out.width = '80%', fig.cap= "Inferred Fraser pink salmon harvest control rule with estimated Limited Reference Point (S~GEN~; LRP), 80%S~MSY~, and U~MSY~ (medians +/- 95% credible intervals). "}
+lrp <- 1.4
+usr <- 4.1
+  
+run_lrp <- 1.5
+run_lrp_lwr <- 0.7
+run_lrp_upr <- 3
 
-- ***ADD HCR plots from ppt (Aug2022)***
+run_usr <- 4.5
+run_usr_lwr <- 3.5
+run_usr_upr <- 21
+
+Umsy <- 0.60
+Umsy_lwr <- 0.47
+Umsy_upr <- 0.7
+  
+ggplot(hcr, aes(x=run_size, y=er)) + 
+  theme_sleek() +
+  xlab("Run size (millions)") +
+  ylab("Target exploitaiotn rate") +
+  geom_segment(aes(y = Umsy, yend = Umsy, x = 0, xend = 30), color = "blue", lwd = 0.5, alpha=0.01,linetype="dotted") +
+  geom_segment(aes(x = run_lrp, xend = run_lrp, y = 0, yend = 1), color = "red", lwd = 0.5, alpha=0.01) +
+  geom_segment(aes(x = run_usr, xend = run_usr, y = 0, yend = 1), color = "grey", lwd = 0.5, linetype="dotted") +
+  geom_rect(aes(xmin = run_usr_lwr, 
+                xmax = run_usr_upr,
+                ymin = 0, 
+                ymax = 1),
+            fill = 'grey', alpha=0.01,inherit.aes = FALSE)  +
+  geom_rect(aes(xmin = run_lrp_lwr, 
+                xmax = run_lrp_upr,
+                ymin = 0, 
+                ymax = 1),
+            fill = 'red', alpha=0.002,inherit.aes = FALSE) +
+  geom_rect(aes(ymin = Umsy_lwr, 
+                ymax = Umsy_upr,
+                xmin = 0, 
+                xmax = 30),
+            fill = 'blue', alpha=0.002,inherit.aes = FALSE) +
+  geom_line(size=1.1) +
+  annotate("text", x = run_lrp, y = 1.02, label = "LRP", color = "red", size=3) +
+  annotate("text", x = run_usr +1, y = 1.02, label = expression(paste("80%",S)[MSY]), color = "grey", size=3) +
+  annotate("text", y = Umsy +0.03, x = 30, label = expression(paste(U)[MSY]), color = "blue", size=3) 
+```
 
 # Data summary & plots  
 - descriptive plots of data used in analysis to show quantity of data available
 - any description/caveats re: data quality would be useful to include in this section, as well
 - data tables go in appendix
 
-```{r esc har, out.height='80%', out.width = '80%', fig.cap= "Total run for Fraser Pink Salmon during the monitoring period"}
+```{r esc har, out.height='80%', out.width = '80%', fig.cap= "Estimates of Fraser pink salmon spawner abundance, harvest and total returns over time"}
 escape_harvest <- gather(data[,1:3], type, count, harvest:spawn, factor_key=TRUE) |>
   mutate(count_million = round(count/1000000, 2))
 
 ggplot(escape_harvest, aes(fill=type, y=count_million, x=year)) + 
   geom_bar(position="stack", stat="identity") +
-  scale_fill_brewer(palette="Dark2",name = "Return type") +
+  scale_fill_brewer(palette="Dark2",name = "") +
   xlab("Year") +
   ylab("Total return (millions of fish)") +
   theme_bw()
@@ -124,7 +190,7 @@ df <- data.frame(Years = c("1957-1985 ", "1987-1991", "1993-2001", "2003-2007", 
 
 kable(df, 
       align="l",
-      caption = "Sampling stanzas and observation error CVs used in state-space model") |>
+      caption = "Sampling stanzas and assumed observation error CVs used in state-space spawner-recruitment model") |>
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
@@ -283,7 +349,7 @@ kable(data.frame(benchmarks.df),
 ## Part B: risk context
 *things that may be helpful for managers as they determine management reference points. e.g., kobe plots, comparison of biological benchmarks to: historical data (spawners, harvest rates, etc.), harvest control rules, etc.), risk tables/plots/profiles, sensitivity analyses...*
 
-```{r kobe-plot, out.height='80%', out.width = '80%', fig.cap= "Kobe plot showing risk relative to Smsy and Umsy"}
+```{r kobe-plot, out.height='80%', out.width = '80%', fig.cap= "Kobe plot of estimated spawner abundance and exploitation rate relative to S~MSY~ (x-axis) and U~MSY~ (y-axis) over time "}
 kobe_df <- data.frame(S = spwn_df$mid, 
                       U = er_df$mid, 
                       year = spwn_df$year) |>
@@ -306,7 +372,7 @@ plotly::ggplotly(p, tooltip = "text") |>
 ```
   - Q for group: axes --> currently shows using S/Smsy, but one potential mgmt refpt = 80%Smsy (see lighter dotted line); would color coding help? (e.g. red vs green quadrants)
   
-```{r Sgen 80 perc Msy, out.width = "75%", fig.cap = "Spawner abundance relative to Smsy with ribbon shading representing 50 and 95% quantiles"}
+```{r Sgen 80 perc Msy, out.width = "75%", fig.cap = "Estimated spawner abundance over time (+/- 50% and 95% credible intervals) relative to upper (80% S~MSY~) and lower (S~GEN~) Wild Salmon Policy benchmarks"}
 ggplot(spwn_df, aes(x=year, y = mid), show.legend = FALSE) +
   geom_ribbon(aes(ymin = benchmarks[1,2], ymax = benchmarks[1,3]), fill = rgb(0.5,0.5,0.5, alpha=0.2)) +
   geom_segment(aes(x = 1959 , y = benchmarks[1,1], xend = 2021, yend = benchmarks[1,1], legend = FALSE)) +
@@ -323,7 +389,7 @@ ggplot(spwn_df, aes(x=year, y = mid), show.legend = FALSE) +
   theme_bw()
 ```
 
-```{r harvest Umsy, out.width = "75%", fig.cap = "Harvest rate and Umsy with ribbon shading representing 50 and 95% quantiles"}
+```{r harvest Umsy, out.width = "75%", fig.cap = "Estimated exploitation rate over time (+/- 50% and 95% credible intervals) relative to the exploitation rate expected to maximize harvest over under equlibrium conditions (U~MSY~)"}
 ggplot(er_df, aes(x=year, y = mid), show.legend = F) +
   geom_ribbon(aes(ymin = benchmarks[3,2], ymax = benchmarks[3,3]), fill = rgb(0.5,0.5,0.5, alpha=0.2)) +
   geom_segment(aes(x = 1959 , y = benchmarks[3,1], xend = 2021, yend = benchmarks[3,1], legend = FALSE)) +
@@ -340,7 +406,7 @@ ggplot(er_df, aes(x=year, y = mid), show.legend = F) +
   theme_bw()
 ```
 
-```{r yield and recruit profiles, out.width = "85%", fig.cap = "Yield and recruit profiles"}
+```{r yield and recruit profiles, out.width = "85%", fig.cap = "Yield, recruitment, and overfishing probability profiles. (a) Optimal yield profile showing the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable yield (MSY). (b) Optimal recruitment profile showing the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable recruitment (S~MSR~). (c) Overfishing profile, calculated as 1 – P(SY > X% of MSY) at S < S~MSY~ , and 0 at S > S~MSY~ , showing the probability that sustained yield (SY) is reduced to less than a percentage (70%, 80%, or 90%) of MSY given a fixed level of escapement. Historical spawning escapements are shown along x-axis in panle (c)"}
 a <- ggplot(long_yield_profiles, aes(x = Spawners, y = perc, group = Objective, color = Objective)) +
   geom_line(size = 1.5) +
   scale_color_viridis(discrete = TRUE) +
@@ -405,7 +471,7 @@ specific things to include in this section:
 * recommendation for what to use if re-evaluation does not take place within the recommended timeframe & why
 * recommendation for what would trigger a rebuilding plan: how many year(s) of what units/metric (individual years vs running average vs ...) being below LRP would trigger a rebuilding plan, and rationale for recommendation 
 
-```{r SR plot, out.height='80%', out.width='90%', fig.cap = "Spawner-Recruit relationship. The grey shaded area are the 90% confidince intervals, and the errorbars on points are 95% confidince intervals."}
+```{r SR plot, out.height='80%', out.width='90%', fig.cap = "Spawner-Recruitment relationship. Error bars and grey band are 95% credible intervals, thick black line is the expected relationship."}
 p <- ggplot() +
   geom_ribbon(data = SR_pred, aes(x = Spawn, ymin = Rec_lwr, ymax = Rec_upr),
               fill = "grey80", alpha=0.5, linetype=2, colour="gray46") +
@@ -439,7 +505,7 @@ plotly::ggplotly(p, tooltip = "text") |>
 ```
 
 
-```{r recruitment residuals, out.width = "75%", fig.cap = "Recruitment resisuals highlighting years of high/low productivity with ribbon shading representing 50 and 95% quantiles."}
+```{r recruitment residuals, out.width = "75%", fig.cap = "Recruitment resisduals over time +/- 50% and 95% credible intervals"}
 resid <- model_pars$lnresid
 resid.quant <- apply(resid, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))[,1:31]
 
