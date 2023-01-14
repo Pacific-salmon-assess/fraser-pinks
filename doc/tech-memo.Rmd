@@ -74,7 +74,7 @@ theme_sleek <- function(base_size = 11, base_family = "") {
 
 ```{r summary-table}
 summary_df <- data.frame(attribute = c("SMU",
-                                       "biological reference point",
+                                       "Limit Reference Point",
                                        "joint science-FAM advice",
                                        "other biological reference points to inform management reference points",
                                        "next year of re-evaluation",
@@ -162,7 +162,7 @@ ggplot(hcr, aes(x=run_size, y=er)) +
             fill = 'blue', alpha=0.002,inherit.aes = FALSE) +
   geom_line(size=1.1) +
   annotate("text", x = run_lrp, y = 1.02, label = "LRP", color = "red", size=3) +
-  annotate("text", x = run_usr +1, y = 1.02, label = expression(paste("80%",S)[MSY]), color = "grey", size=3) +
+  annotate("text", x = run_usr +1, y = 1.02, label = expression(paste("80%",S)[MSY]), color = "black", size=3) +
   annotate("text", y = Umsy +0.03, x = 30, label = expression(paste(U)[MSY]), color = "blue", size=3) 
 ```
 
