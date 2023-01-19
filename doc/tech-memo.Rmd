@@ -1,5 +1,5 @@
 ---
-title: "Technical Memo - Template (DRAFT)"
+title: "Technical Memo: Biological Benchmarks - Template (DRAFT)"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output:
   html_document:
@@ -64,7 +64,7 @@ theme_sleek <- function(base_size = 11, base_family = "") {
 
 ```
 
-*The purpose of this template is to document the Precautionary Approach framework components for Pacific Salmon that Science Branch is responsible for producing. This memo is not meant to provide an assessment of stock status. The template is set up so that:*
+*The purpose of this template is to document the Precautionary Approach framework components for Pacific Salmon that Science Branch is responsible for producing. This memo is not meant to provide an assessment of stock status. Though, once management reference points are identified and incorporated, it could be used to do so, IF regularly updated. The template is set up so that:*
 
 -   *main body = advice/information for managers who need to determine the reference points they are responsible when implementing the PA/FSP*
 -   *appendices = technical information (e.g. additional results) of interest & scientific documentation necessary to reproduce the analysis*
@@ -91,7 +91,7 @@ summary_df <- data.frame(attribute = c("SMU",
 kbl(summary_df, 
       col.names = NULL, 
       align = "l", 
-    caption = "Example of key summary information for a given stock") |>
+    caption = "Example of key summary information for a given stock. Rationale will be documented in main body of document.") |>
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
@@ -116,13 +116,15 @@ include terminology that we want to use for all PA/FSP memos:
     -   age structure
     -   migration, spawn timing
     -   distribution
+    -   productivity, survival
+    -   hatchery contribution?
     -   etc...incl. any trends
 
 # Harvest Control Rule
 
 -   description / diagram of current HCR
 -   ID any "implied" management values that come from the HCR (will be useful for comparative purposes to biological benchmarks)
--   work with FAM / FAM to provide short summary of ancillary mgmt pieces - e.g., time, area, effort control that works with the HCR
+-   work with FAM / FAM to provide short summary of ancillary mgmt pieces - e.g., time, area, gear/effort control that works with the HCR
 
 ```{r hcr, out.height='80%', out.width = '80%', fig.cap= "Inferred Fraser pink salmon harvest control rule with estimated Limited Reference Point (S~GEN~; LRP), 80%S~MSY~, and U~MSY~ (medians +/- 95% credible intervals). "}
 lrp <- 1.4
@@ -173,7 +175,9 @@ ggplot(hcr, aes(x=run_size, y=er)) +
 # Data summary & plots
 
 -   descriptive plots of data used in analysis to show quantity of data available
+-  1-2 bullet summary of data collection methods (details into appendix)
 -   any description/caveats re: data quality would be useful to include in this section, as well
+  - if there is a hatchery component, how was it treated in this analysis?
 -   data tables go in appendix
 
 ```{r esc har, out.height='80%', out.width = '80%', fig.cap= "Estimates of Fraser pink salmon spawner abundance, harvest and total returns over time"}
@@ -204,13 +208,17 @@ kable(df,
 
 *short, general audience description of methods and how uncertainty was incorporated (or not). Put details that are required for scientific documentation in appendix*
 
+e.g., for Fraser Pinks:  
+
+- uses a stock-recruit method that accounts for different levels of uncertainty associated with historical escapement assessment methods
+
 # Results for PA/FSP implementation
 
 *focus in this section is on results that determine the reference points that Science Branch is responsible / jointly responsible for and biological reference points that managers may want to consider when making decisions re: implementation of PA/FSP reference points*
 
 ## Part A: biological reference point values
 
-This will be provided at both SMU & CU level (when they are not a 1:1 relationship)
+This will be provided at both SMU & CU level (when they are not a 1:1 relationship). Values that are recommended by Science will be highlighted & rationale for those recommendations will be provided.
 
 ```{r SR data wrangle}
 max_samples <- dim(model_pars$lnalpha)
@@ -473,11 +481,11 @@ print(g)
 
 # Additional Considerations
 
-*Are there things that Fisheries Management should consider or should know about the results in this memo when developing management benchmarks?*
+*Are there things that Fisheries Management should consider or should know about the results in this memo when developing management benchmarks? Or that SEP managers should know when developing enhancement plans?*
 
 general things to include in this section:
 
--   sources of uncertainty
+-   sources of uncertainty *(does this belong above? w. risk context?*
 -   time varying considerations
 -   changing demographics
 -   anticipated climate change impacts

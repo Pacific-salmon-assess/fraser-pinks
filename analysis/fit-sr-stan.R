@@ -9,7 +9,7 @@ stan.data <- list("nyrs" = length(data$year),
                   "S_cv" = data$spawn_cv,
                   "H_cv" = data$harvest_cv)
 
-stan.fit <- stan(file = "./analysis/ss-sr-ar1.stan",
+stan.fit <- rstan::stan(file = "./analysis/ss-sr-ar1.stan",
                  model_name = "SS-SR_AR1",
                  data = stan.data,
                  chains = 4,
