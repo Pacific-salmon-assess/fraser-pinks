@@ -1,5 +1,5 @@
 ---
-title: "Technical Memo - Template (DRAFT)"
+title: "Technical Memo: Biological Benchmarks - Template (DRAFT)"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output:
   html_document:
@@ -64,7 +64,7 @@ theme_sleek <- function(base_size = 11, base_family = "") {
 
 ```
 
-*The purpose of this template is to document the Precautionary Approach framework components for Pacific Salmon that Science Branch is responsible for producing. This memo is not meant to provide an assessment of stock status. The template is set up so that:*
+*The purpose of this template is to document the Precautionary Approach framework components for Pacific Salmon that Science Branch is responsible for producing. This memo is not meant to provide an assessment of stock status. Though, once management reference points are identified and incorporated, it could be used to do so, IF regularly updated. The template is set up so that:*
 
 -   *main body = advice/information for managers who need to determine the reference points they are responsible when implementing the PA/FSP*
 -   *appendices = technical information (e.g. additional results) of interest & scientific documentation necessary to reproduce the analysis*
@@ -203,6 +203,10 @@ kable(df,
 # Methods - summary
 
 *short, general audience description of methods and how uncertainty was incorporated (or not). Put details that are required for scientific documentation in appendix*
+
+e.g., for Fraser Pinks:  
+
+- uses a stock-recruit method that accounts for different levels of uncertainty associated with historical escapement assessment methods
 
 # Results for PA/FSP implementation
 
@@ -473,7 +477,7 @@ print(g)
 
 # Additional Considerations
 
-*Are there things that Fisheries Management should consider or should know about the results in this memo when developing management benchmarks?*
+*Are there things that Fisheries Management should consider or should know about the results in this memo when developing management benchmarks? Or that SEP managers should know when developing enhancement plans?*
 
 general things to include in this section:
 
