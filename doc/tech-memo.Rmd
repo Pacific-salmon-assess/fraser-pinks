@@ -566,3 +566,14 @@ ggplot(resids, aes(x=year, y = mid), show.legend = FALSE) +
 3.  results that are not included in main body of memo - anticipated that these will mostly be diagnostic in nature?
 4.  sources of uncertainty (assuming that it will be removed from main body of document)
 5.  references
+
+
+```{r trackdown controls, include = FALSE}
+#trying to write .Rmd to google docs then use trackdown to get updates. 
+
+
+#library(trackdown) #install from CRAN if you don't have it already
+
+#trackdown::upload_file(file = here("doc/tech-memo.Rmd"), 
+#                       hide_code = TRUE)
+```
