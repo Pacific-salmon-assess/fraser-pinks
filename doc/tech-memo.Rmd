@@ -395,16 +395,14 @@ p <- ggplot(kobe_df, aes(S_Smsy, U_Umsy)) +
   scale_colour_viridis_c(name="Year") +
   theme_classic() +
   theme(legend.position = "bottom") + #hack to functionally align plots
-  labs(y="U/Umsy", x= "S/Smsy")
+  labs(y="U/Umsy", x= "S/Smsy") +
+  coord_cartesian(xlim=c(0, 4))
 
 plotly::ggplotly(p, tooltip = "text") |> 
   config(displayModeBar = FALSE) 
 ```
-&nbsp;  
-&nbsp;  
 
--   Q for group: axes --\> currently shows using S/Smsy, but one potential mgmt refpt = 80%Smsy (see lighter dotted line); would color coding help? (e.g. red vs green quadrants)
-&nbsp;  
+-   Q for group: axes --\> currently shows using S/Smsy, but one potential mgmt refpt = 80% Smsy (see lighter dotted line); would color coding help? (e.g. red vs green quadrants)
  
 ```{r Sgen 80 perc Msy, out.width = "75%", fig.cap = "Estimated spawner abundance over time (+/- 50% and 95% credible intervals) relative to upper (80% S~MSY~) and lower (S~GEN~) Wild Salmon Policy benchmarks"}
 ggplot(spwn_df, aes(x=year, y = mid), show.legend = FALSE) +
