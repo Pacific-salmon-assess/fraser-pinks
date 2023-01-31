@@ -367,13 +367,26 @@ kable(data.frame(benchmarks.df),
 *things that may be helpful for managers as they determine management reference points. e.g., kobe plots, comparison of biological benchmarks to: historical data (spawners, harvest rates, etc.), harvest control rules, etc.), risk tables/plots/profiles, sensitivity analyses...*
 
 ```{r kobe-plot, out.height='80%', out.width = '80%', fig.cap= "Kobe plot of estimated spawner abundance and exploitation rate relative to S~MSY~ (x-axis) and U~MSY~ (y-axis), respectively, over time"}
-kobe_df <- data.frame(S = spwn_df$mid, 
+kobe_df <- data.frame(S = spwn_df$mid,
+                      S_LCI = spwn_df$lwr,
+                      S_UCI = spwn_df$upper, 
                       U = er_df$mid, 
+                      U_LCI = er_df$lwr, 
+                      U_UCI = er_df$upper,
                       year = spwn_df$year) |>
-  mutate(U_Umsy = round(U/benchmarks[3,1] ,2), 
-         S_Smsy = round(S/(benchmarks[1,1]*1.25), 2)) #correct from 80%Smsy to Smsy
+  #index benchmarks table
+  mutate(U_Umsy = round(U/benchmarks[3,1] ,2),
+         U_Umsy_LCI = round(U_LCI/benchmarks[3,1] ,2),
+         U_Umsy_UCI = round(U_UCI/benchmarks[3,1] ,2),
+         S_Smsy = round(S/(benchmarks[1,1]*1.25), 2), #correct from 80%Smsy to Smsy
+         S_Smsy_LCI = round(S_LCI/(benchmarks[1,1]*1.25), 2),
+         S_Smsy_UCI = round(S_UCI/(benchmarks[1,1]*1.25), 2)) 
 
 p <- ggplot(kobe_df, aes(S_Smsy, U_Umsy)) +
+  geom_errorbar(aes(x = S_Smsy , y = U_Umsy, ymin = U_Umsy_LCI, ymax = U_Umsy_UCI),
+                colour="grey", width=0, size=0.3) +
+  geom_errorbarh(aes(x = S_Smsy , y = U_Umsy, xmin = S_Smsy_LCI, xmax = S_Smsy_UCI),
+                 height=0, colour = "grey", height = 0, size = 0.3) +
   geom_vline(xintercept = 1, lty = 2) +
   geom_vline(xintercept = 0.8, lty = 3) +
   geom_hline(yintercept = 1, lty = 2) +
