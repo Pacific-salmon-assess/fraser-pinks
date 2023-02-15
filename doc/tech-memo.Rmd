@@ -188,7 +188,7 @@ kobe_df <- data.frame(S = spwn_df$mid,
          S_Smsy_UCI = round(S_UCI/(benchmarks[1,1]*1.25), 2)) 
 ```
 
-```{r coarse kobe, out.height='80%', out.width = '80%', fig.cap= "Inferred Fraser pink salmon harvest control rule with estimated Limited Reference Point (S~GEN~; LRP), 80%S~MSY~, and U~MSY~ (medians +/- 95% credible intervals). "}
+```{r coarse kobe, out.height='80%', out.width = '80%', fig.cap= "Inferred Fraser pink salmon harvest control rule with estimated Limited Reference Point (S~GEN~; LRP), 80%S~MSY~, and U~MSY~ (medians +/- 95% credible intervals)."}
 current_kobe <- filter(kobe_df, year == max(kobe_df$year))
 rect <- data.frame(x1 = c(-1, 1, -1, 1), 
                    x2 = c(1, 4, 1, 4),
@@ -200,20 +200,20 @@ rect <- data.frame(x1 = c(-1, 1, -1, 1),
 p <- ggplot() +
   geom_rect(data = rect, 
             mapping = aes(xmin = x1, xmax = x2, ymin = y1, ymax = y2, 
-                          fill = fill, text = mgmt)) +
+                          fill = fill, text = mgmt), alpha = 0.8) +
   geom_errorbar(data = current_kobe,
                 aes(x = S_Smsy, ymin = U_Umsy_LCI, ymax = U_Umsy_UCI),
                 colour="grey", width=0, size=0.3) +
   geom_errorbarh(data = current_kobe, 
                  aes(y = U_Umsy, xmin = S_Smsy_LCI, xmax = S_Smsy_UCI),
                  height=0, colour = "grey", size = 0.3) +
-  geom_vline(xintercept = 1, lty = 2) +
-  geom_vline(xintercept = 0.8, lty = 3) +
+  geom_vline(xintercept = 1, lty = 2) + 
+ # geom_vline(xintercept = 0.8, lty = 3) + #turn off WSP benchmark for simplicity
   geom_hline(yintercept = 1, lty = 2) +
   geom_path(data=kobe_df, aes(S_Smsy, U_Umsy)) +
   geom_point(data=kobe_df, aes(S_Smsy, U_Umsy, text = year)) +
   geom_point(data=current_kobe, aes(S_Smsy, U_Umsy, text = year), size=3) +
-  scale_fill_manual(values = c("red", "orange", "orange", "green")) +
+  scale_fill_manual(values = c("red3", "orange3", "orange3", "green4")) +
   theme_classic() +
   theme(legend.position = "bottom") + #hack to functionally align plots
   labs(y="U/Umsy", x= "S/Smsy") +
