@@ -94,6 +94,136 @@ kbl(summary_df,
     caption = "Example of key summary information for a given stock. Rationale will be documented in main body of document.") |>
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
+```{r get kobe data}
+#need to do this pretty early in doc to generate the kobe...
+max_samples <- dim(model_pars$lnalpha)
+
+spwn <- exp(model_pars$lnS)
+spwn.quant <- apply(spwn, 2, quantile, probs=c(0.05,0.5,0.95))[,1:31]
+
+rec <-exp(model_pars$lnR)
+rec.quant <- apply(rec, 2, quantile, probs=c(0.05,0.5,0.95))[,2:32]
+
+brood_t <- as.data.frame(cbind(data$year[1:31],t(spwn.quant), t(rec.quant)))
+colnames(brood_t) <- c("BroodYear","S_lwr","S_med","S_upr","R_lwr","R_med","R_upr")
+
+brood_t <- as.data.frame(brood_t) |>
+  round(2)
+
+#SR relationship
+spw <- seq(0,max(brood_t[,4]),length.out=100)
+SR_pred <- matrix(NA,100,max_samples)
+
+for(i in 1:max_samples){
+  r <- sample(seq(1,max_samples),1,replace=T)
+  a <- model_pars$lnalpha[r]
+  b <- model_pars$beta[r]
+  SR_pred[,i] <- (exp(a)*spw*exp(-b*spw))
+}
+
+SR_pred <- cbind(spw,t(apply(SR_pred,c(1),quantile,probs=c(0.05,0.5,0.95),na.rm=T)))
+colnames(SR_pred) <- c("Spawn", "Rec_lwr","Rec_med","Rec_upr")
+SR_pred <- as.data.frame(SR_pred) |>
+  round(2)
+
+#create spawner df
+spwn <- model_pars$S
+spwn.quant <- apply(spwn, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))
+
+spwn_df <- as.data.frame(cbind(data$year, t(spwn.quant)))
+colnames(spwn_df) <- c("year","lwr","midlwr","mid","midupper","upper")
+
+#create escapement df
+er <- model_pars$U
+er.quant <- apply(er, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))
+
+er_df <- as.data.frame(cbind(data$year, t(er.quant)))
+colnames(er_df) <- c("year","lwr","midlwr","mid","midupper","upper")
+
+#get benchmarks
+# Sgen function
+get_Sgen <- function(a, b, int_lower, int_upper, SMSY) {
+  fun_Sgen <- function(Sgen, a, b, SMSY) {Sgen * a * exp(-b * Sgen) - SMSY}
+  Sgen <- uniroot(fun_Sgen, interval=c(int_lower, int_upper), a=a, b=b, SMSY=SMSY)$root
+}
+
+# Benchmarks
+bench <- matrix(NA,1000,3,
+                dimnames = list(seq(1:1000), c("sgen","smsy","umsy")))
+
+for(i in 1:1000){
+  r <- sample(seq(1,1000),1,replace=T)
+  a <- model_pars$lnalpha[r]
+  b <- model_pars$beta[r]
+  bench[i,2] <- (1 - lambert_W0(exp(1 - a))) / b # smsy
+  bench[i,1] <- get_Sgen(exp(a),b,-1,1/b*2,bench[i,2]) # sgen
+  bench[i,3] <- (1 - lambert_W0(exp(1 - a)))# umsy
+}
+  
+bench[,2] <- bench[,2]*0.8
+bench.quant <- apply(bench, 2, quantile, probs=c(0.025,0.5,0.975), na.rm=T)
+
+percentiles <- quantile(data$spawn, probs=c(0.25, 0.5))/1000000
+
+benchmarks <- matrix(NA,5,3)
+benchmarks[1,] <- c(bench.quant[2,2],bench.quant[1,2],bench.quant[3,2])
+benchmarks[2,] <- c(bench.quant[2,1],bench.quant[1,1],bench.quant[3,1])
+benchmarks[3,] <- c(bench.quant[2,3],bench.quant[1,3],bench.quant[3,3])
+benchmarks[4,1] <- percentiles[1]
+benchmarks[5,1] <- percentiles[2]
+
+kobe_df <- data.frame(S = spwn_df$mid,
+                      S_LCI = spwn_df$lwr,
+                      S_UCI = spwn_df$upper, 
+                      U = er_df$mid, 
+                      U_LCI = er_df$lwr, 
+                      U_UCI = er_df$upper,
+                      year = spwn_df$year) |>
+  #index benchmarks table
+  mutate(U_Umsy = round(U/benchmarks[3,1] ,2),
+         U_Umsy_LCI = round(U_LCI/benchmarks[3,1] ,2),
+         U_Umsy_UCI = round(U_UCI/benchmarks[3,1] ,2),
+         S_Smsy = round(S/(benchmarks[1,1]*1.25), 2), #correct from 80%Smsy to Smsy
+         S_Smsy_LCI = round(S_LCI/(benchmarks[1,1]*1.25), 2),
+         S_Smsy_UCI = round(S_UCI/(benchmarks[1,1]*1.25), 2)) 
+```
+
+```{r coarse kobe, out.height='80%', out.width = '80%', fig.cap= "Inferred Fraser pink salmon harvest control rule with estimated Limited Reference Point (S~GEN~; LRP), 80%S~MSY~, and U~MSY~ (medians +/- 95% credible intervals). "}
+current_kobe <- filter(kobe_df, year == max(kobe_df$year))
+rect <- data.frame(x1 = c(-1, 1, -1, 1), 
+                   x2 = c(1, 4, 1, 4),
+                   y1 = c(1, 1, 0, 0),
+                   y2 = c(1.5, 1.5, 1, 1), 
+                   fill = factor(c(1,2,3,4)),
+                   mgmt = c("overfishing/overfished", "overfishing", "overfished",
+                            "underfished/underfishing"))
+p <- ggplot() +
+  geom_rect(data = rect, 
+            mapping = aes(xmin = x1, xmax = x2, ymin = y1, ymax = y2, 
+                          fill = fill, text = mgmt)) +
+  geom_errorbar(data = current_kobe,
+                aes(x = S_Smsy, ymin = U_Umsy_LCI, ymax = U_Umsy_UCI),
+                colour="grey", width=0, size=0.3) +
+  geom_errorbarh(data = current_kobe, 
+                 aes(y = U_Umsy, xmin = S_Smsy_LCI, xmax = S_Smsy_UCI),
+                 height=0, colour = "grey", size = 0.3) +
+  geom_vline(xintercept = 1, lty = 2) +
+  geom_vline(xintercept = 0.8, lty = 3) +
+  geom_hline(yintercept = 1, lty = 2) +
+  geom_path(data=kobe_df, aes(S_Smsy, U_Umsy)) +
+  geom_point(data=kobe_df, aes(S_Smsy, U_Umsy, text = year)) +
+  geom_point(data=current_kobe, aes(S_Smsy, U_Umsy, text = year), size=3) +
+  scale_fill_manual(values = c("red", "orange", "orange", "green")) +
+  theme_classic() +
+  theme(legend.position = "bottom") + #hack to functionally align plots
+  labs(y="U/Umsy", x= "S/Smsy") +
+  coord_cartesian(xlim=c(0, 4), 
+                  ylim = c(0, 1.5)) +
+  guides(fill = "none")
+
+plotly::ggplotly(p, tooltip = "text") |> 
+  config(displayModeBar = FALSE) 
+```
 
 # Background
 
@@ -120,7 +250,7 @@ include terminology that we want to use for all PA/FSP memos:
     -   hatchery contribution?
     -   etc...incl. any trends
 
-# Harvest Control Rule
+# Current Harvest Control Rule
 
 -   description / diagram of current HCR
 -   ID any "implied" management values that come from the HCR (will be useful for comparative purposes to biological benchmarks)
@@ -169,15 +299,16 @@ ggplot(hcr, aes(x=run_size, y=er)) +
   annotate("text", x = run_usr +1, y = 1.02, label = expression(paste("80%",S)[MSY]), color = "black", size=3) +
   annotate("text", y = Umsy +0.03, x = 30, label = expression(paste(U)[MSY]), color = "blue", size=3) 
 ```
-&nbsp;  
-&nbsp;  
+
+ \
+ 
 
 # Data summary & plots
 
 -   descriptive plots of data used in analysis to show quantity of data available
--  1-2 bullet summary of data collection methods (details into appendix)
+-   1-2 bullet summary of data collection methods (details into appendix)
 -   any description/caveats re: data quality would be useful to include in this section, as well
-  - if there is a hatchery component, how was it treated in this analysis?
+-   if there is a hatchery component, how was it treated in this analysis?
 -   data tables go in appendix
 
 ```{r esc har, out.height='80%', out.width = '80%', fig.cap= "Estimates of Fraser pink salmon spawner abundance, harvest and total returns over time"}
@@ -189,10 +320,12 @@ ggplot(escape_harvest, aes(fill=type, y=count_million, x=year)) +
   scale_fill_brewer(palette="Dark2",name = "") +
   xlab("Year") +
   ylab("Total return (millions of fish)") +
-  theme_bw()
+  theme_sleek()
 ```
-&nbsp;  
-&nbsp;  
+
+ \
+ 
+
 ```{r spawner estimation methods}
 df <- data.frame(Years = c("1957-1985 ", "1987-1991", "1993-2001", "2003-2007", "2009-2011", "2013-2021"),
                  Method = c("PSC mark-recapture (system specific)", "DFO mark-recapture (system specific)", "DFO mark-recapture (mainstem)", "Test fishery", "Mission post-season", "Mission in-season"),
@@ -208,9 +341,9 @@ kable(df,
 
 *short, general audience description of methods and how uncertainty was incorporated (or not). Put details that are required for scientific documentation in appendix*
 
-e.g., for Fraser Pinks:  
+e.g., for Fraser Pinks:
 
-- uses a stock-recruit method that accounts for different levels of uncertainty associated with historical escapement assessment methods
+-   uses a stock-recruit method that accounts for different levels of uncertainty associated with historical escapement assessment methods
 
 # Results for PA/FSP implementation
 
@@ -220,51 +353,7 @@ e.g., for Fraser Pinks:
 
 This will be provided at both SMU & CU level (when they are not a 1:1 relationship). Values that are recommended by Science will be highlighted & rationale for those recommendations will be provided.
 
-```{r SR data wrangle}
-max_samples <- dim(model_pars$lnalpha)
-
-spwn <- exp(model_pars$lnS)
-spwn.quant <- apply(spwn, 2, quantile, probs=c(0.05,0.5,0.95))[,1:31]
-
-rec <-exp(model_pars$lnR)
-rec.quant <- apply(rec, 2, quantile, probs=c(0.05,0.5,0.95))[,2:32]
-
-brood_t <- as.data.frame(cbind(data$year[1:31],t(spwn.quant), t(rec.quant)))
-colnames(brood_t) <- c("BroodYear","S_lwr","S_med","S_upr","R_lwr","R_med","R_upr")
-
-brood_t <- as.data.frame(brood_t) |>
-  round(2)
-
-# SR relationship
-spw <- seq(0,max(brood_t[,4]),length.out=100)
-SR_pred <- matrix(NA,100,max_samples)
-
-for(i in 1:max_samples){
-  r <- sample(seq(1,max_samples),1,replace=T)
-  a <- model_pars$lnalpha[r]
-  b <- model_pars$beta[r]
-  SR_pred[,i] <- (exp(a)*spw*exp(-b*spw))
-}
-
-SR_pred <- cbind(spw,t(apply(SR_pred,c(1),quantile,probs=c(0.05,0.5,0.95),na.rm=T)))
-colnames(SR_pred) <- c("Spawn", "Rec_lwr","Rec_med","Rec_upr")
-SR_pred <- as.data.frame(SR_pred) |>
-  round(2)
-
-#create spawner df
-spwn <- model_pars$S
-spwn.quant <- apply(spwn, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))
-
-spwn_df <- as.data.frame(cbind(data$year, t(spwn.quant)))
-colnames(spwn_df) <- c("year","lwr","midlwr","mid","midupper","upper")
-
-#create escapement df
-er <- model_pars$U
-er.quant <- apply(er, 2, quantile, probs=c(0.025,0.25,0.5,0.75,0.975))
-
-er_df <- as.data.frame(cbind(data$year, t(er.quant)))
-colnames(er_df) <- c("year","lwr","midlwr","mid","midupper","upper")
-
+```{r yield profiles}
 #get yield profiles 
 spw <- seq(0,max(brood_t[,4]),length.out=100)
 Profiles <- array(NA, dim = c(length(spw),max_samples,9))
@@ -320,38 +409,9 @@ long_yield_profiles <- profiles_median %>%
 
 ```
 
-```{r benchmarks}
-# Sgen function
-get_Sgen <- function(a, b, int_lower, int_upper, SMSY) {
-  fun_Sgen <- function(Sgen, a, b, SMSY) {Sgen * a * exp(-b * Sgen) - SMSY}
-  Sgen <- uniroot(fun_Sgen, interval=c(int_lower, int_upper), a=a, b=b, SMSY=SMSY)$root
-}
-
-# Benchmarks
-bench <- matrix(NA,1000,3,
-                dimnames = list(seq(1:1000), c("sgen","smsy","umsy")))
-
-for(i in 1:1000){
-  r <- sample(seq(1,1000),1,replace=T)
-  a <- model_pars$lnalpha[r]
-  b <- model_pars$beta[r]
-  bench[i,2] <- (1 - lambert_W0(exp(1 - a))) / b # smsy
-  bench[i,1] <- get_Sgen(exp(a),b,-1,1/b*2,bench[i,2]) # sgen
-  bench[i,3] <- (1 - lambert_W0(exp(1 - a)))# umsy
-}
-  
-bench[,2] <- bench[,2]*0.8
-bench.quant <- apply(bench, 2, quantile, probs=c(0.025,0.5,0.975), na.rm=T)
-
-percentiles <- quantile(data$spawn,probs=c(0.25, 0.5))/1000000
-
-benchmarks <- matrix(NA,5,3)
-benchmarks[1,] <- c(bench.quant[2,2],bench.quant[1,2],bench.quant[3,2])
-benchmarks[2,] <- c(bench.quant[2,1],bench.quant[1,1],bench.quant[3,1])
-benchmarks[3,] <- c(bench.quant[2,3],bench.quant[1,3],bench.quant[3,3])
-benchmarks[4,1] <- percentiles[1]
-benchmarks[5,1] <- percentiles[2]
-rownames(benchmarks) <- c("80% Smsy","Sgen","Umsy","25th percentile","50th percentile")
+```{r benchmarks table}
+rownames(benchmarks) <- c("80% Smsy","Sgen","Umsy","25th percentile (spawners)",
+                          "50th percentile (spawners)")
 colnames(benchmarks) <- c("median","lower CI","upper CI")
 
 benchmarks.df <- as.data.frame(benchmarks)
@@ -367,26 +427,11 @@ kable(data.frame(benchmarks.df),
 *things that may be helpful for managers as they determine management reference points. e.g., kobe plots, comparison of biological benchmarks to: historical data (spawners, harvest rates, etc.), harvest control rules, etc.), risk tables/plots/profiles, sensitivity analyses...*
 
 ```{r kobe-plot, out.height='80%', out.width = '80%', fig.cap= "Kobe plot of estimated spawner abundance and exploitation rate relative to S~MSY~ (x-axis) and U~MSY~ (y-axis), respectively, over time"}
-kobe_df <- data.frame(S = spwn_df$mid,
-                      S_LCI = spwn_df$lwr,
-                      S_UCI = spwn_df$upper, 
-                      U = er_df$mid, 
-                      U_LCI = er_df$lwr, 
-                      U_UCI = er_df$upper,
-                      year = spwn_df$year) |>
-  #index benchmarks table
-  mutate(U_Umsy = round(U/benchmarks[3,1] ,2),
-         U_Umsy_LCI = round(U_LCI/benchmarks[3,1] ,2),
-         U_Umsy_UCI = round(U_UCI/benchmarks[3,1] ,2),
-         S_Smsy = round(S/(benchmarks[1,1]*1.25), 2), #correct from 80%Smsy to Smsy
-         S_Smsy_LCI = round(S_LCI/(benchmarks[1,1]*1.25), 2),
-         S_Smsy_UCI = round(S_UCI/(benchmarks[1,1]*1.25), 2)) 
-
 p <- ggplot(kobe_df, aes(S_Smsy, U_Umsy)) +
-  geom_errorbar(aes(x = S_Smsy , y = U_Umsy, ymin = U_Umsy_LCI, ymax = U_Umsy_UCI),
+  geom_errorbar(aes(x = S_Smsy, ymin = U_Umsy_LCI, ymax = U_Umsy_UCI),
                 colour="grey", width=0, size=0.3) +
-  geom_errorbarh(aes(x = S_Smsy , y = U_Umsy, xmin = S_Smsy_LCI, xmax = S_Smsy_UCI),
-                 height=0, colour = "grey", height = 0, size = 0.3) +
+  geom_errorbarh(aes(y = U_Umsy, xmin = S_Smsy_LCI, xmax = S_Smsy_UCI),
+                 height=0, colour = "grey", size = 0.3) +
   geom_vline(xintercept = 1, lty = 2) +
   geom_vline(xintercept = 0.8, lty = 3) +
   geom_hline(yintercept = 1, lty = 2) +
@@ -403,7 +448,7 @@ plotly::ggplotly(p, tooltip = "text") |>
 ```
 
 -   Q for group: axes --\> currently shows using S/Smsy, but one potential mgmt refpt = 80% Smsy (see lighter dotted line); would color coding help? (e.g. red vs green quadrants)
- 
+
 ```{r Sgen 80 perc Msy, out.width = "75%", fig.cap = "Estimated spawner abundance over time (+/- 50% and 95% credible intervals) relative to upper (80% S~MSY~) and lower (S~GEN~) Wild Salmon Policy benchmarks"}
 ggplot(spwn_df, aes(x=year, y = mid), show.legend = FALSE) +
   geom_ribbon(aes(ymin = benchmarks[1,2], ymax = benchmarks[1,3]), fill = rgb(0.5,0.5,0.5, alpha=0.2)) +
@@ -420,9 +465,10 @@ ggplot(spwn_df, aes(x=year, y = mid), show.legend = FALSE) +
   theme(legend.position = "none") +
   theme_bw()
 ```
-&nbsp;  
-&nbsp;  
-&nbsp; 
+
+ \
+ \
+ 
 
 ```{r harvest Umsy, out.width = "75%", fig.cap = "Estimated exploitation rate over time (+/- 50% and 95% credible intervals) relative to the exploitation rate expected to maximize harvest over under equilibrium conditions (U~MSY~)"}
 ggplot(er_df, aes(x=year, y = mid), show.legend = F) +
@@ -440,8 +486,9 @@ ggplot(er_df, aes(x=year, y = mid), show.legend = F) +
   geom_abline(intercept = 0, slope = 0,col="dark grey", lty=2)+
   theme_bw()
 ```
-&nbsp;  
-&nbsp;  
+
+ \
+ 
 
 ```{r yield and recruit profiles, out.width = "85%", fig.cap = "Yield, recruitment, and overfishing probability profiles. (a) Optimal yield profile showing the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable yield (MSY). (b) Optimal recruitment profile showing the probability that a given spawner abundance is expected to achieve 70%, 80%, or 90% of maximum sustainable recruitment (S~MSR~). (c) Overfishing profile, calculated as 1 – P(SY > X% of MSY) at S < S~MSY~ , and 0 at S > S~MSY~ , showing the probability that sustained yield (SY) is reduced to less than a percentage (70%, 80%, or 90%) of MSY given a fixed level of escapement. Historical spawning escapements are shown along x-axis in panel (c)"}
 
@@ -542,8 +589,9 @@ p <- ggplot() +
 plotly::ggplotly(p, tooltip = "text") |>
   config(displayModeBar = FALSE) 
 ```
-&nbsp;  
-&nbsp;  
+
+ \
+ 
 
 ```{r recruitment residuals, out.width = "75%", fig.cap = "Recruitment residuals over time (+/- 50% and 95% credible intervals)"}
 resid <- model_pars$lnresid
@@ -577,14 +625,3 @@ ggplot(resids, aes(x=year, y = mid), show.legend = FALSE) +
 3.  results that are not included in main body of memo - anticipated that these will mostly be diagnostic in nature?
 4.  sources of uncertainty (assuming that it will be removed from main body of document)
 5.  references
-
-
-```{r trackdown controls, include = FALSE}
-#trying to write .Rmd to google docs then use trackdown to get updates. 
-
-
-#library(trackdown) #install from CRAN if you don't have it already
-
-#trackdown::upload_file(file = here("doc/tech-memo.Rmd"), 
-#                       hide_code = TRUE)
-```
