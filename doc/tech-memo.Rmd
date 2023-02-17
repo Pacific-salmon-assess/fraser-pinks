@@ -203,15 +203,15 @@ p <- ggplot() +
                           fill = fill, text = mgmt), alpha = 0.8) +
   geom_errorbar(data = current_kobe,
                 aes(x = S_Smsy, ymin = U_Umsy_LCI, ymax = U_Umsy_UCI),
-                colour="grey", width=0, size=0.3) +
+                width=0, size=0.3) +
   geom_errorbarh(data = current_kobe, 
                  aes(y = U_Umsy, xmin = S_Smsy_LCI, xmax = S_Smsy_UCI),
-                 height=0, colour = "grey", size = 0.3) +
+                 height=0, size = 0.3) +
   geom_vline(xintercept = 1, lty = 2) + 
  # geom_vline(xintercept = 0.8, lty = 3) + #turn off WSP benchmark for simplicity
   geom_hline(yintercept = 1, lty = 2) +
-  geom_path(data=kobe_df, aes(S_Smsy, U_Umsy)) +
-  geom_point(data=kobe_df, aes(S_Smsy, U_Umsy, text = year)) +
+  geom_path(data=kobe_df, aes(S_Smsy, U_Umsy), color = "grey") +
+  geom_point(data=kobe_df, aes(S_Smsy, U_Umsy, text = year), color = "grey") +
   geom_point(data=current_kobe, aes(S_Smsy, U_Umsy, text = year), size=3) +
   scale_fill_manual(values = c("red3", "orange3", "orange3", "green4")) +
   theme_classic() +
