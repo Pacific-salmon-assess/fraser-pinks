@@ -189,7 +189,7 @@ kobe_df <- data.frame(S = spwn_df$mid,
          S_Smsy_UCI = round(S_UCI/(benchmarks[1,1]*1.25), 2)) 
 ```
 
-```{r coarse kobe, out.height='80%', out.width = '80%', fig.cap= "Inferred Fraser pink salmon harvest control rule with estimated Limited Reference Point (S~GEN~; LRP), 80%S~MSY~, and U~MSY~ (medians +/- 95% credible intervals)."}
+```{r coarse kobe, out.height='80%', out.width = '80%', fig.cap= "Kobe plot of estimated spawner abundance and exploitation rate relative to S~MSY~ (x-axis) and U~MSY~ (y-axis), respectively, over time. Highlighting past data (light grey to darker grey) and current state (black)."}
 current_kobe <- filter(kobe_df, year == max(kobe_df$year))
 rect <- data.frame(x1 = c(-1, 1, -1, 1), 
                    x2 = c(1, 4, 1, 4),
