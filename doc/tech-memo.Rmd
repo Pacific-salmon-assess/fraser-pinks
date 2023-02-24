@@ -189,15 +189,15 @@ kobe_df <- data.frame(S = spwn_df$mid,
          S_Smsy_UCI = round(S_UCI/(benchmarks[1,1]*1.25), 2)) 
 ```
 
-```{r coarse kobe, out.height='80%', out.width = '80%', fig.cap= "Kobe plot of estimated spawner abundance and exploitation rate relative to S~MSY~ (x-axis) and U~MSY~ (y-axis), respectively, over time. Highlighting past data (light grey to darker grey) and current state (black)."}
+```{r coarse kobe, out.height='80%', out.width = '80%', fig.cap= "Kobe plot of estimated spawner abundance and exploitation rate relative to S~MSY~ (x-axis) and U~MSY~ (y-axis), respectively, over time. Highlighting past data (light grey to darker grey) and current state (black) with 95% CIs."}
 current_kobe <- filter(kobe_df, year == max(kobe_df$year))
 rect <- data.frame(x1 = c(-1, 1, -1, 1), 
                    x2 = c(1, 4, 1, 4),
                    y1 = c(1, 1, 0, 0),
                    y2 = c(1.5, 1.5, 1, 1), 
                    fill = factor(c(1,2,3,4)),
-                   mgmt = c("overfishing/overfished", "overfishing", "overfished",
-                            "underfished/underfishing"))
+                   mgmt = c("overfishing & overfished", "overfishing", "overfished",
+                            "underfished & underfishing"))
 p <- ggplot() +
   geom_rect(data = rect, 
             mapping = aes(xmin = x1, xmax = x2, ymin = y1, ymax = y2, 
@@ -544,7 +544,7 @@ print(g)
 
 general things to include in this section:
 
--   sources of uncertainty *(does this belong above? w. risk context?*
+-   sources of uncertainty *(does this belong above? w. risk context?)*
 -   time varying considerations
 -   changing demographics
 -   anticipated climate change impacts
