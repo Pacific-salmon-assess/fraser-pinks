@@ -300,7 +300,44 @@ ggplot(hcr, aes(x=run_size, y=er)) +
   annotate("text", x = run_usr +1, y = 1.02, label = expression(paste("80%",S)[MSY]), color = "black", size=3) +
   annotate("text", y = Umsy +0.03, x = 30, label = expression(paste(U)[MSY]), color = "blue", size=3) 
 ```
+```{r alt-hcr}
+#chuck suggested plotting the data over the HCR
+ggplot(hcr, aes(x=run_size, y=er)) + 
+  theme_sleek() +
+  xlab("Run size (millions)") +
+  ylab("Target exploitaiotn rate") +
+  geom_segment(aes(y = Umsy, yend = Umsy, x = 0, xend = 30), color = "blue", lwd = 0.5, alpha=0.01,linetype="dotted") +
+  geom_segment(aes(x = run_lrp, xend = run_lrp, y = 0, yend = 1), color = "red", lwd = 0.5, alpha=0.01) +
+  geom_segment(aes(x = run_usr, xend = run_usr, y = 0, yend = 1), color = "grey", lwd = 0.5, linetype="dotted") +
+  geom_rect(aes(xmin = run_usr_lwr, 
+                xmax = run_usr_upr,
+                ymin = 0, 
+                ymax = 1),
+            fill = 'grey', alpha=0.01,inherit.aes = FALSE)  +
+  geom_rect(aes(xmin = run_lrp_lwr, 
+                xmax = run_lrp_upr,
+                ymin = 0, 
+                ymax = 1),
+            fill = 'red', alpha=0.002,inherit.aes = FALSE) +
+  geom_rect(aes(ymin = Umsy_lwr, 
+                ymax = Umsy_upr,
+                xmin = 0, 
+                xmax = 30),
+            fill = 'blue', alpha=0.002,inherit.aes = FALSE) +
+  geom_line(size=1.1) +
+  annotate("text", x = run_lrp, y = 1.02, label = "LRP", color = "red", size=3) +
+  annotate("text", x = run_usr +1, y = 1.02, label = expression(paste("80%",S)[MSY]), color = "black", size=3) +
+  annotate("text", y = Umsy +0.03, x = 30, label = expression(paste(U)[MSY]), color = "blue", size=3) +
+  geom_point(data = kobe_df, aes(S, U))# +
+  #geom_errorbar(data = kobe_df,
+  #              aes(x = S, ymin = U_LCI, ymax = U_UCI),
+  #              width=0, size=0.3) +
+  #geom_errorbarh(data = kobe_df, 
+  #               aes(y = U, xmin = S_LCI, xmax = S_UCI),
+  #               height=0, size = 0.3) #why broken?
 
+
+```
  \
  
 
