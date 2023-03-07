@@ -300,9 +300,15 @@ ggplot(hcr, aes(x=run_size, y=er)) +
   annotate("text", x = run_usr +1, y = 1.02, label = expression(paste("80%",S)[MSY]), color = "black", size=3) +
   annotate("text", y = Umsy +0.03, x = 30, label = expression(paste(U)[MSY]), color = "blue", size=3) 
 ```
-```{r alt-hcr}
+```{r alt-hcr, out.height='80%', out.width = '80%', fig.cap= "OPTIONAL NEW Inferred Fraser pink salmon harvest control rule with estimated Limited Reference Point (S~GEN~; LRP), 80%S~MSY~, and U~MSY~ (medians +/- 95% credible intervals)."}
 #chuck suggested plotting the data over the HCR
-ggplot(hcr, aes(x=run_size, y=er)) + 
+hcr_data <- left_join(select(data, year, harvest, spawn),
+                      select(kobe_df, year, U), 
+                      by = "year") |>
+  mutate(run_size_mils = (harvest+spawn)/1000000)
+
+
+p <- ggplot(hcr, aes(x=run_size, y=er)) + 
   theme_sleek() +
   xlab("Run size (millions)") +
   ylab("Target exploitaiotn rate") +
@@ -328,15 +334,11 @@ ggplot(hcr, aes(x=run_size, y=er)) +
   annotate("text", x = run_lrp, y = 1.02, label = "LRP", color = "red", size=3) +
   annotate("text", x = run_usr +1, y = 1.02, label = expression(paste("80%",S)[MSY]), color = "black", size=3) +
   annotate("text", y = Umsy +0.03, x = 30, label = expression(paste(U)[MSY]), color = "blue", size=3) +
-  geom_point(data = kobe_df, aes(S, U))# +
-  #geom_errorbar(data = kobe_df,
-  #              aes(x = S, ymin = U_LCI, ymax = U_UCI),
-  #              width=0, size=0.3) +
-  #geom_errorbarh(data = kobe_df, 
-  #               aes(y = U, xmin = S_LCI, xmax = S_UCI),
-  #               height=0, size = 0.3) #why broken?
+  geom_point(data = hcr_data, aes(run_size_mils, U, text = year))
 
-
+#plotly::ggplotly(p, tooltip = "text") |>  #text year is getting confused with the other text layers
+#  config(displayModeBar = FALSE) 
+p
 ```
  \
  
