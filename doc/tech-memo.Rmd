@@ -334,7 +334,8 @@ p <- ggplot(hcr, aes(x=run_size, y=er)) +
   annotate("text", x = run_lrp, y = 1.02, label = "LRP", color = "red", size=3) +
   annotate("text", x = run_usr +1, y = 1.02, label = expression(paste("80%",S)[MSY]), color = "black", size=3) +
   annotate("text", y = Umsy +0.03, x = 30, label = expression(paste(U)[MSY]), color = "blue", size=3) +
-  geom_point(data = hcr_data, aes(run_size_mils, U, text = year))
+  geom_point(data = hcr_data, aes(run_size_mils, U, text = year, color = year)) +
+  scale_color_viridis_c()
 
 #plotly::ggplotly(p, tooltip = "text") |>  #text year is getting confused with the other text layers
 #  config(displayModeBar = FALSE) 
