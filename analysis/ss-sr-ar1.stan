@@ -88,6 +88,6 @@ model{
 }
 
 generated quantities {
-
+  //CALC log_lik!
 }
 
