@@ -88,6 +88,12 @@ model{
 }
 
 generated quantities {
-  //CALC log_lik!
+  vector[nyrs] ll_H; //log likelihood for observed harvest
+  vector[nyrs] ll_S; //log likelihood for observed spawners
+  
+ for(t in 1:nyrs){
+  ll_H[t] = lognormal_lpdf(H_obs[t]|lnC[t],sqrt(log((H_cv[t]^2) + 1))
+  ll_S[t] = lognormal_lpdf(S_obs[t]|lnS[t],sqrt(log((S_cv[t]^2) + 1))
+  }
 }
 
